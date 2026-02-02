@@ -17,13 +17,13 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create Visual Studio solution structure per SecuritiesTradingApi/SecuritiesTradingApi.sln
-- [ ] T002 Initialize .NET 8 Web API project in src/SecuritiesTradingApi/
-- [ ] T003 [P] Install core NuGet packages: Microsoft.EntityFrameworkCore 8.x, Microsoft.EntityFrameworkCore.SqlServer 8.x, FluentValidation 11.x in src/SecuritiesTradingApi/SecuritiesTradingApi.csproj
-- [ ] T004 [P] Initialize xUnit test projects: SecuritiesTradingApi.UnitTests and SecuritiesTradingApi.IntegrationTests in tests/
-- [ ] T005 [P] Create project folder structure: Controllers/, Models/, Services/, Data/, Infrastructure/ in src/SecuritiesTradingApi/
-- [ ] T006 [P] Configure appsettings.json with connection strings and TWSE API settings in src/SecuritiesTradingApi/appsettings.json
-- [ ] T007 [P] Configure appsettings.Development.json in src/SecuritiesTradingApi/appsettings.Development.json
+- [X] T001 Create Visual Studio solution structure per SecuritiesTradingApi/SecuritiesTradingApi.sln
+- [X] T002 Initialize .NET 8 Web API project in src/SecuritiesTradingApi/
+- [X] T003 [P] Install core NuGet packages: Microsoft.EntityFrameworkCore 8.x, Microsoft.EntityFrameworkCore.SqlServer 8.x, FluentValidation 11.x in src/SecuritiesTradingApi/SecuritiesTradingApi.csproj
+- [X] T004 [P] Initialize xUnit test projects: SecuritiesTradingApi.UnitTests and SecuritiesTradingApi.IntegrationTests in tests/
+- [X] T005 [P] Create project folder structure: Controllers/, Models/, Services/, Data/, Infrastructure/ in src/SecuritiesTradingApi/
+- [X] T006 [P] Configure appsettings.json with connection strings and TWSE API settings in src/SecuritiesTradingApi/appsettings.json
+- [X] T007 [P] Configure appsettings.Development.json in src/SecuritiesTradingApi/appsettings.Development.json
 
 ---
 
