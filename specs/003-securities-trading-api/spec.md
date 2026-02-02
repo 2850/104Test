@@ -78,8 +78,8 @@
 ### 邊界案例
 
 - 當市場非交易時段（如週末、國定假日、非交易時間）時，查詢股票即時資訊的行為為何？系統是否回傳最後交易資料並標示時間？
-- 當使用者大量連續查詢股票資訊（如每秒 10 次以上）時，系統如何處理速率限制？
-- 當外部台灣證券交易所 API 回應速度過慢（超過 5 秒）時，系統如何處理逾時？
+- 當使用者大量連續查詢股票資訊時，系統將實施速率限制：每個客戶端 IP 位址每秒最多 10 次請求，超過限制時回傳 HTTP 429 (Too Many Requests) 錯誤並提示重試時間
+- 當外部第三方 API 回應速度過慢（單次請求超過 5 秒逾時）時，系統將自動重試兩次，重試間隔採用指數退避策略（第一次重試等待 1 秒，第二次重試等待 2 秒），若三次嘗試均失敗則回傳明確錯誤訊息並記錄日誌
 - 當股票發生暫停交易（如重大訊息暫停）時，委託單建立功能如何回應？
 - 當使用者輸入的委託價格剛好等於漲停價或跌停價時，系統是否允許建立委託單？
 - 當委託單數量為 0 或負數時，系統如何驗證和回應？
@@ -99,7 +99,7 @@
 
 - **FR-004**: 系統必須提供單一股票即時資訊查詢功能
 - **FR-005**: 系統必須在查詢股票即時資訊前驗證股票代號是否存在
-- **FR-006**: 系統必須從台灣證券交易所取得即時股票資訊
+- **FR-006**: 系統必須透過第三方資料聚合服務（如 FinMind API 或類似服務）取得台灣證券交易所即時股票資訊
 - **FR-007**: 系統必須回傳完整的股票即時資訊，包含：
   - 股票識別資訊：股票代號、股票名稱、股票全名
   - 價格資訊：最新成交價、開盤價、最高價、最低價、昨收價
@@ -107,7 +107,7 @@
   - 限價資訊：漲停價、跌停價
   - 五檔買賣資訊：五檔買價和買量、五檔賣價和賣量
   - 時間資訊：資料時間戳記、日期、時間
-- **FR-008**: 系統必須處理外部資料來源呼叫失敗情況（如逾時、伺服器錯誤），並回傳明確錯誤訊息
+- **FR-008**: 系統必須處理外部資料來源呼叫失敗情況（如逾時、伺服器錯誤），實施重試機制：單次請求逾時設定為 5 秒，失敗時自動重試兩次（重試間隔採指數退避 1 秒、2 秒），三次嘗試均失敗後回傳明確錯誤訊息並記錄詳細日誌
 
 **委託單建立**:
 
@@ -132,6 +132,7 @@
 - **FR-021**: 系統必須對所有輸入參數進行資料型別驗證（如價格為數字、代號為字串）
 - **FR-022**: 系統必須提供明確且使用者友善的錯誤訊息，不得暴露技術細節
 - **FR-023**: 系統必須記錄所有 API 呼叫錯誤和外部 API 呼叫失敗的日誌
+- **FR-024**: 系統必須實施 API 速率限制，每個客戶端 IP 位址每秒最多允許 10 次請求，超過限制時回傳 HTTP 429 狀態碼及重試建議時間
 
 **明確排除的功能（第一版 MVP 不實作）**:
 
@@ -148,7 +149,7 @@
 ### 關鍵實體
 
 - **Stock（股票）**: 代表台灣證券交易所上市股票，包含公司代號、公司名稱、公司簡稱
-- **Order（委託單）**: 代表使用者建立的股票買賣委託，包含委託單編號、股票代號、買賣別、價格、數量、交易方式、委託時間、委託狀態，與股票資訊關聯
+- **Order（委託單）**: 代表使用者建立的股票買賣委託，包含委託單編號、股票代號、買賣別、價格、數量、交易方式、委託時間、委託狀態（固定為「已委託」），與股票資訊關聯。MVP 版本不支持狀態變更，所有委託單建立後狀態恆保持為「已委託」
 
 ## 成功標準 *(必填)*
 
@@ -174,9 +175,18 @@
 - 假設委託價格可以等於漲停價或跌停價（不會被拒絕）
 - 假設所有日期時間使用台北時區（UTC+8）
 - 假設系統使用者已了解股票交易基本概念，無需提供教學或說明功能
+## Clarifications
 
+### Session 2026-02-02
+
+- Q: The spec mentions storing Stock and Order entities but doesn't specify the persistence mechanism. This affects data modeling, transaction handling, recovery strategies, and deployment architecture. → A: Relational database (MS SQL Server) with ORM
+- Q: The spec mentions calling "台灣證券交易所公開資料介面" but doesn't specify which API/protocol. This affects integration implementation, data parsing, error handling, rate limiting, and testing strategy. → A: Third-party aggregation service (FinMind or similar)
+- Q: The spec mentions rate limiting as a boundary case but doesn't specify the rate limit policy. This affects API design, infrastructure sizing, user experience, and operational monitoring. → A: 10 requests/second per client IP
+- Q: The spec mentions timeout handling for external API calls but doesn't specify retry behavior. This affects reliability, user experience during transient failures, and operational cost. → A: Retry twice with exponential backoff (1s, 2s)
+- Q: The spec defines order statuses but only mentions "已委託" (submitted). For proper order tracking, the complete status lifecycle needs definition. → A: Single status only ("已委託")
+- Q: The spec mentions timeout handling for external API calls but doesn't specify retry behavior. This affects reliability, user experience during transient failures, and operational cost. → A: Retry twice with exponential backoff (1s, 2s)
 ## 依賴性
 
-- 依賴台灣證券交易所公開資料介面的可用性和穩定性，以取得即時股票交易資訊
-- 依賴台灣證券交易所提供的股票清單資料來源
-- 依賴資料儲存系統以持久化股票和委託單資料
+- 依賴第三方資料聚合服務（如 FinMind API）的可用性和穩定性，以取得台灣證券交易所即時股票交易資訊，需考慮該服務的 API 速率限制和服務條款
+- 依賴第三方服務提供的台灣證券交易所股票清單資料來源
+- 依賴 Microsoft SQL Server 關聯式資料庫系統以持久化股票和委託單資料,需透過 ORM (Object-Relational Mapping) 框架進行資料存取,確保 ACID 交易特性以維護金融資料完整性
