@@ -52,7 +52,7 @@
 - **Status**: PASS
 - **Compliance**: 
   - Feature spec 已包含完整 Given-When-Then 驗收情境
-  - 將使用 xUnit 進行單元測試，目標 100% 覆蓋率
+  - 將使用 xUnit 進行單元測試，**強制要求 100% 覆蓋率用於關鍵業務邏輯**（委託下單、價格驗證、委託單編號生成），其餘程式碼**最低 90% 覆蓋率**
   - TDD 開發流程：先寫測試，後寫實作
   - FluentValidation 提供驗證邏輯的行為測試
 

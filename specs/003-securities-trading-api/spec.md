@@ -19,8 +19,9 @@
 
 1. **Given** 系統已載入台灣證券交易所股票清單，**When** 使用者輸入有效股票代號（如 "2330"），**Then** 系統回傳該股票存在，並顯示完整公司資訊（代號、名稱、簡稱）
 2. **Given** 系統已載入台灣證券交易所股票清單，**When** 使用者輸入不存在的股票代號（如 "9999"），**Then** 系統回傳明確錯誤訊息「股票代號不存在」
-3. **Given** 使用者需要模糊查詢，**When** 使用者輸入關鍵字（如 "台積"），**Then** 系統回傳所有符合的股票清單
-4. **Given** 使用者輸入無效格式，**When** 使用者輸入非數字或過長的代號，**Then** 系統回傳格式驗證錯誤訊息
+3. **Given** 使用者輸入無效格式，**When** 使用者輸入非數字或過長的代號，**Then** 系統回傳格式驗證錯誤訊息
+
+**備註**：關鍵字模糊查詢功能（如輸入「台積」查詢所有符合股票）為 MVP 後續增強功能，第一版暫不實作
 
 ---
 
@@ -93,13 +94,13 @@
 
 - **FR-001**: 系統必須預先載入台灣證券交易所股票清單資料
 - **FR-002**: 系統必須儲存股票資訊，包含：公司代號、公司名稱、公司簡稱
-- **FR-003**: 系統必須提供股票代號查詢功能，支援精確代號查詢和關鍵字模糊查詢
+- **FR-003**: 系統必須提供股票代號查詢功能，支援精確代號查詢（MVP 階段暫不實作關鍵字模糊查詢，僅支援完整股票代號查詢）
 
 **股票即時資訊查詢**:
 
 - **FR-004**: 系統必須提供單一股票即時資訊查詢功能
 - **FR-005**: 系統必須在查詢股票即時資訊前驗證股票代號是否存在
-- **FR-006**: 系統必須透過第三方資料聚合服務（如 FinMind API 或類似服務）取得台灣證券交易所即時股票資訊
+- **FR-006**: 系統必須透過台灣證券交易所官方即時報價 API 取得即時股票資訊
 - **FR-007**: 系統必須回傳完整的股票即時資訊，包含：
   - 股票識別資訊：股票代號、股票名稱、股票全名
   - 價格資訊：最新成交價、開盤價、最高價、最低價、昨收價
@@ -107,7 +108,7 @@
   - 限價資訊：漲停價、跌停價
   - 五檔買賣資訊：五檔買價和買量、五檔賣價和賣量
   - 時間資訊：資料時間戳記、日期、時間
-- **FR-008**: 系統必須處理外部資料來源呼叫失敗情況（如逾時、伺服器錯誤），實施重試機制：單次請求逾時設定為 5 秒，失敗時自動重試兩次（重試間隔採指數退避 1 秒、2 秒），三次嘗試均失敗後回傳明確錯誤訊息並記錄詳細日誌
+- **FR-008**: 系統必須處理外部資料來源呼叫失敗情況（如逾時、伺服器錯誤），實施重試機制：單次請求逾時設定為 5 秒，失敗時自動重試兩次（重試間隔採指數退避 1 秒、2 秒），三次嘗試均失敗後回傳明確錯誤訊息並記錄詳細日誌（必須包含：時間戳記、股票代號、錯誤類型、重試次數、回應時間、錯誤訊息）
 
 **委託單建立**:
 
@@ -117,7 +118,7 @@
 - **FR-012**: 系統必須驗證委託價格在該股票的當日漲跌停範圍內
 - **FR-013**: 系統必須驗證委託數量為整股交易（1000 股的整數倍）
 - **FR-014**: 系統必須驗證所有必填欄位（股票代號、買賣別、價格、數量）
-- **FR-015**: 系統必須產生唯一的委託單編號
+- **FR-015**: 系統必須產生唯一的委託單編號，格式為 ORD-YYYYMMDD-{序號}（例如：ORD-20260202-000001），其中序號由資料庫序列（seq_OrderSequence）產生以確保唯一性
 - **FR-016**: 系統必須儲存委託單資訊，包含：委託單編號、股票代號、買賣別、價格、數量、交易方式、委託時間、委託狀態
 - **FR-017**: 系統必須回傳委託單建立成功訊息及委託單編號，或回傳明確的錯誤訊息
 
@@ -132,7 +133,7 @@
 - **FR-021**: 系統必須對所有輸入參數進行資料型別驗證（如價格為數字、代號為字串）
 - **FR-022**: 系統必須提供明確且使用者友善的錯誤訊息，不得暴露技術細節
 - **FR-023**: 系統必須記錄所有 API 呼叫錯誤和外部 API 呼叫失敗的日誌
-- **FR-024**: 系統必須實施 API 速率限制，每個客戶端 IP 位址每秒最多允許 10 次請求，超過限制時回傳 HTTP 429 狀態碼及重試建議時間
+- **FR-024**: 系統必須實施 API 速率限制，每個客戶端 IP 位址每秒最多允許 10 次請求，超過限制時回傳 HTTP 429 狀態碼及重試建議時間（透過 Retry-After header 提供，值為速率限制視窗重置前的剩餘秒數）
 
 **明確排除的功能（第一版 MVP 不實作）**:
 
@@ -180,13 +181,13 @@
 ### Session 2026-02-02
 
 - Q: The spec mentions storing Stock and Order entities but doesn't specify the persistence mechanism. This affects data modeling, transaction handling, recovery strategies, and deployment architecture. → A: Relational database (MS SQL Server) with ORM
-- Q: The spec mentions calling "台灣證券交易所公開資料介面" but doesn't specify which API/protocol. This affects integration implementation, data parsing, error handling, rate limiting, and testing strategy. → A: Third-party aggregation service (FinMind or similar)
+- Q: The spec mentions calling "台灣證券交易所公開資料介面" but doesn't specify which API/protocol. This affects integration implementation, data parsing, error handling, rate limiting, and testing strategy. → A: TWSE official real-time quote API
 - Q: The spec mentions rate limiting as a boundary case but doesn't specify the rate limit policy. This affects API design, infrastructure sizing, user experience, and operational monitoring. → A: 10 requests/second per client IP
 - Q: The spec mentions timeout handling for external API calls but doesn't specify retry behavior. This affects reliability, user experience during transient failures, and operational cost. → A: Retry twice with exponential backoff (1s, 2s)
 - Q: The spec defines order statuses but only mentions "已委託" (submitted). For proper order tracking, the complete status lifecycle needs definition. → A: Single status only ("已委託")
 - Q: The spec mentions timeout handling for external API calls but doesn't specify retry behavior. This affects reliability, user experience during transient failures, and operational cost. → A: Retry twice with exponential backoff (1s, 2s)
 ## 依賴性
 
-- 依賴第三方資料聚合服務（如 FinMind API）的可用性和穩定性，以取得台灣證券交易所即時股票交易資訊，需考慮該服務的 API 速率限制和服務條款
-- 依賴第三方服務提供的台灣證券交易所股票清單資料來源
+- 依賴台灣證券交易所官方即時報價 API 的可用性和穩定性，以取得即時股票交易資訊，需考慮該服務的 API 速率限制和服務條款
+- 依賴台灣證券交易所提供的股票清單資料來源
 - 依賴 Microsoft SQL Server 關聯式資料庫系統以持久化股票和委託單資料,需透過 ORM (Object-Relational Mapping) 框架進行資料存取,確保 ACID 交易特性以維護金融資料完整性

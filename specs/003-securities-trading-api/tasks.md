@@ -48,7 +48,7 @@
 - [ ] T020 Implement CachedTwseApiClient decorator with 5-second cache in src/SecuritiesTradingApi/Infrastructure/ExternalApis/CachedTwseApiClient.cs
 - [ ] T021 Register HttpClient and TWSE API services in src/SecuritiesTradingApi/Program.cs
 - [ ] T022 [P] Configure Swagger/OpenAPI documentation in src/SecuritiesTradingApi/Program.cs
-- [ ] T023 [P] Setup logging configuration with structured logging in src/SecuritiesTradingApi/Program.cs
+- [ ] T023 [P] Setup structured logging configuration (Serilog) with log levels and required fields (timestamp, stock code, error type, retry count, response time) in src/SecuritiesTradingApi/Program.cs
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -65,7 +65,7 @@
 
 ### Tests for User Story 1
 
-> **NOTE: These are unit tests, NOT TDD tests. Write tests AFTER implementation to verify functionality.**
+> **NOTE: 遵循 TDD 原則，先寫失敗測試再實作功能。測試作為 Given-When-Then 驗收情境的可執行版本。**
 
 - [ ] T024 [P] [US1] Unit test for StockMasterEntity validation in tests/SecuritiesTradingApi.UnitTests/Models/StockMasterTests.cs
 - [ ] T025 [P] [US1] Unit test for StockQueryValidator with valid and invalid stock codes in tests/SecuritiesTradingApi.UnitTests/Validators/StockQueryValidatorTests.cs
@@ -87,6 +87,7 @@
 - [ ] T038 [US1] Register StockService and validators in src/SecuritiesTradingApi/Program.cs
 - [ ] T039 [P] [US1] Create CSV data seeding script for stock master data (t187ap03_L.csv) in database/seed-data/seed-stocks.sql
 - [ ] T040 [US1] Implement stock data seeding logic in src/SecuritiesTradingApi/Data/DbInitializer.cs
+- [ ] T040a [US1] Execute stock data seeding on application startup or via migration in src/SecuritiesTradingApi/Program.cs
 
 **Checkpoint**: User Story 1 完成 - 可完全獨立測試股票代號查詢功能
 
@@ -104,7 +105,8 @@
 ### Tests for User Story 2
 
 - [ ] T041 [P] [US2] Unit test for StockQuotesSnapshot entity in tests/SecuritiesTradingApi.UnitTests/Models/StockQuotesSnapshotTests.cs
-- [ ] T042 [P] [US2] Unit test for TwseApiClient retry logic in tests/SecuritiesTradingApi.UnitTests/Infrastructure/TwseApiClientTests.cs
+- [ ] T042 [P] [US2] Unit test for TwseApiClient retry logic with exponential backoff (1s, 2s) in tests/SecuritiesTradingApi.UnitTests/Infrastructure/TwseApiClientTests.cs
+- [ ] T042a [P] [US2] Integration test for TwseApiClient retry behavior under API failures in tests/SecuritiesTradingApi.IntegrationTests/Infrastructure/TwseApiClientRetryTests.cs
 - [ ] T043 [P] [US2] Unit test for StockService.GetStockQuoteAsync in tests/SecuritiesTradingApi.UnitTests/Services/StockServiceTests_Quote.cs
 - [ ] T044 [P] [US2] Integration test for GET /api/stocks/{stockCode}/quote endpoint in tests/SecuritiesTradingApi.IntegrationTests/Api/StocksControllerTests_Quote.cs
 
