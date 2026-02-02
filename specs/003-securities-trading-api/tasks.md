@@ -33,22 +33,22 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T008 Create TradingDbContext class with DbContextOptions in src/SecuritiesTradingApi/Data/TradingDbContext.cs
-- [ ] T009 Configure EF Core connection string and database provider in src/SecuritiesTradingApi/Program.cs
-- [ ] T010 Create initial EF Core migration for database schema in src/SecuritiesTradingApi/Data/Migrations/
-- [ ] T011 [P] Create ProblemDetails error response classes in src/SecuritiesTradingApi/Models/ProblemDetails/
-- [ ] T012 [P] Implement ErrorHandlingMiddleware for global exception handling in src/SecuritiesTradingApi/Infrastructure/Middleware/ErrorHandlingMiddleware.cs
-- [ ] T013 [P] Implement RateLimitingMiddleware for IP-based rate limiting (10 req/sec) in src/SecuritiesTradingApi/Infrastructure/Middleware/RateLimitingMiddleware.cs
-- [ ] T014 [P] Configure InMemory cache service in src/SecuritiesTradingApi/Infrastructure/Cache/MemoryCacheService.cs
-- [ ] T015 Register middleware and services in src/SecuritiesTradingApi/Program.cs
-- [ ] T016 [P] Create SQL script for database with In-Memory OLTP filegroup in database/scripts/01-create-database.sql
-- [ ] T017 [P] Create SQL script for seq_OrderSequence in database/scripts/02-create-sequences.sql
-- [ ] T018 [P] Implement ITwseApiClient interface in src/SecuritiesTradingApi/Infrastructure/ExternalApis/ITwseApiClient.cs
-- [ ] T019 Implement TwseApiClient with retry logic and exponential backoff in src/SecuritiesTradingApi/Infrastructure/ExternalApis/TwseApiClient.cs
-- [ ] T020 Implement CachedTwseApiClient decorator with 5-second cache in src/SecuritiesTradingApi/Infrastructure/ExternalApis/CachedTwseApiClient.cs
-- [ ] T021 Register HttpClient and TWSE API services in src/SecuritiesTradingApi/Program.cs
-- [ ] T022 [P] Configure Swagger/OpenAPI documentation in src/SecuritiesTradingApi/Program.cs
-- [ ] T023 [P] Setup structured logging configuration (Serilog) with log levels and required fields (timestamp, stock code, error type, retry count, response time) in src/SecuritiesTradingApi/Program.cs
+- [X] T008 Create TradingDbContext class with DbContextOptions in src/SecuritiesTradingApi/Data/TradingDbContext.cs
+- [X] T009 Configure EF Core connection string and database provider in src/SecuritiesTradingApi/Program.cs
+- [X] T010 Create initial EF Core migration for database schema in src/SecuritiesTradingApi/Data/Migrations/
+- [X] T011 [P] Create ProblemDetails error response classes in src/SecuritiesTradingApi/Models/ProblemDetails/
+- [X] T012 [P] Implement ErrorHandlingMiddleware for global exception handling in src/SecuritiesTradingApi/Infrastructure/Middleware/ErrorHandlingMiddleware.cs
+- [X] T013 [P] Implement RateLimitingMiddleware for IP-based rate limiting (10 req/sec) in src/SecuritiesTradingApi/Infrastructure/Middleware/RateLimitingMiddleware.cs
+- [X] T014 [P] Configure InMemory cache service in src/SecuritiesTradingApi/Infrastructure/Cache/MemoryCacheService.cs
+- [X] T015 Register middleware and services in src/SecuritiesTradingApi/Program.cs
+- [X] T016 [P] Create SQL script for database with In-Memory OLTP filegroup in database/scripts/01-create-database.sql
+- [X] T017 [P] Create SQL script for seq_OrderSequence in database/scripts/02-create-sequences.sql
+- [X] T018 [P] Implement ITwseApiClient interface in src/SecuritiesTradingApi/Infrastructure/ExternalApis/ITwseApiClient.cs
+- [X] T019 Implement TwseApiClient with retry logic and exponential backoff in src/SecuritiesTradingApi/Infrastructure/ExternalApis/TwseApiClient.cs
+- [X] T020 Implement CachedTwseApiClient decorator with 5-second cache in src/SecuritiesTradingApi/Infrastructure/ExternalApis/CachedTwseApiClient.cs
+- [X] T021 Register HttpClient and TWSE API services in src/SecuritiesTradingApi/Program.cs
+- [X] T022 [P] Configure Swagger/OpenAPI documentation in src/SecuritiesTradingApi/Program.cs
+- [X] T023 [P] Setup structured logging configuration (Serilog) with log levels and required fields (timestamp, stock code, error type, retry count, response time) in src/SecuritiesTradingApi/Program.cs
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -67,27 +67,27 @@
 
 > **NOTE: 遵循 TDD 原則，先寫失敗測試再實作功能。測試作為 Given-When-Then 驗收情境的可執行版本。**
 
-- [ ] T024 [P] [US1] Unit test for StockMasterEntity validation in tests/SecuritiesTradingApi.UnitTests/Models/StockMasterTests.cs
-- [ ] T025 [P] [US1] Unit test for StockQueryValidator with valid and invalid stock codes in tests/SecuritiesTradingApi.UnitTests/Validators/StockQueryValidatorTests.cs
-- [ ] T026 [P] [US1] Unit test for StockService.GetStockInfoAsync in tests/SecuritiesTradingApi.UnitTests/Services/StockServiceTests.cs
-- [ ] T027 [P] [US1] Integration test for GET /api/stocks/{stockCode} endpoint in tests/SecuritiesTradingApi.IntegrationTests/Api/StocksControllerTests.cs
+- [X] T024 [P] [US1] Unit test for StockMasterEntity validation in tests/SecuritiesTradingApi.UnitTests/Models/StockMasterTests.cs
+- [X] T025 [P] [US1] Unit test for StockQueryValidator with valid and invalid stock codes in tests/SecuritiesTradingApi.UnitTests/Validators/StockQueryValidatorTests.cs
+- [X] T026 [P] [US1] Unit test for StockService.GetStockInfoAsync in tests/SecuritiesTradingApi.UnitTests/Services/StockServiceTests.cs
+- [X] T027 [P] [US1] Integration test for GET /api/stocks/{stockCode} endpoint in tests/SecuritiesTradingApi.IntegrationTests/Api/StocksControllerTests.cs
 
 ### Implementation for User Story 1
 
-- [ ] T028 [P] [US1] Create StockMaster entity class in src/SecuritiesTradingApi/Models/Entities/StockMaster.cs
-- [ ] T029 [P] [US1] Create StockInfoDto response class in src/SecuritiesTradingApi/Models/Dtos/StockInfoDto.cs
-- [ ] T030 [P] [US1] Create StockQueryDto request class in src/SecuritiesTradingApi/Models/Dtos/StockQueryDto.cs
-- [ ] T031 [US1] Add StockMaster DbSet to TradingDbContext in src/SecuritiesTradingApi/Data/TradingDbContext.cs
-- [ ] T032 [US1] Create EF Core entity configuration for StockMaster in src/SecuritiesTradingApi/Data/Configurations/StockMasterConfiguration.cs
-- [ ] T033 [US1] Create EF Core migration for StockMaster table in src/SecuritiesTradingApi/Data/Migrations/
-- [ ] T034 [P] [US1] Implement StockQueryValidator using FluentValidation in src/SecuritiesTradingApi/Infrastructure/Validators/StockQueryValidator.cs
-- [ ] T035 [P] [US1] Create IStockService interface in src/SecuritiesTradingApi/Services/IStockService.cs
-- [ ] T036 [US1] Implement StockService.GetStockInfoAsync method in src/SecuritiesTradingApi/Services/StockService.cs
-- [ ] T037 [US1] Create StocksController with GET /api/stocks/{stockCode} endpoint in src/SecuritiesTradingApi/Controllers/StocksController.cs
-- [ ] T038 [US1] Register StockService and validators in src/SecuritiesTradingApi/Program.cs
-- [ ] T039 [P] [US1] Create CSV data seeding script for stock master data (t187ap03_L.csv) in database/seed-data/seed-stocks.sql
-- [ ] T040 [US1] Implement stock data seeding logic in src/SecuritiesTradingApi/Data/DbInitializer.cs
-- [ ] T040a [US1] Execute stock data seeding on application startup or via migration in src/SecuritiesTradingApi/Program.cs
+- [X] T028 [P] [US1] Create StockMaster entity class in src/SecuritiesTradingApi/Models/Entities/StockMaster.cs
+- [X] T029 [P] [US1] Create StockInfoDto response class in src/SecuritiesTradingApi/Models/Dtos/StockInfoDto.cs
+- [X] T030 [P] [US1] Create StockQueryDto request class in src/SecuritiesTradingApi/Models/Dtos/StockQueryDto.cs
+- [X] T031 [US1] Add StockMaster DbSet to TradingDbContext in src/SecuritiesTradingApi/Data/TradingDbContext.cs
+- [X] T032 [US1] Create EF Core entity configuration for StockMaster in src/SecuritiesTradingApi/Data/Configurations/StockMasterConfiguration.cs
+- [X] T033 [US1] Create EF Core migration for StockMaster table in src/SecuritiesTradingApi/Data/Migrations/
+- [X] T034 [P] [US1] Implement StockQueryValidator using FluentValidation in src/SecuritiesTradingApi/Infrastructure/Validators/StockQueryValidator.cs
+- [X] T035 [P] [US1] Create IStockService interface in src/SecuritiesTradingApi/Services/IStockService.cs
+- [X] T036 [US1] Implement StockService.GetStockInfoAsync method in src/SecuritiesTradingApi/Services/StockService.cs
+- [X] T037 [US1] Create StocksController with GET /api/stocks/{stockCode} endpoint in src/SecuritiesTradingApi/Controllers/StocksController.cs
+- [X] T038 [US1] Register StockService and validators in src/SecuritiesTradingApi/Program.cs
+- [X] T039 [P] [US1] Create CSV data seeding script for stock master data (t187ap03_L.csv) in database/seed-data/seed-stocks.sql
+- [X] T040 [US1] Implement stock data seeding logic in src/SecuritiesTradingApi/Data/DbInitializer.cs
+- [X] T040a [US1] Execute stock data seeding on application startup or via migration in src/SecuritiesTradingApi/Program.cs
 
 **Checkpoint**: User Story 1 完成 - 可完全獨立測試股票代號查詢功能
 
@@ -104,24 +104,24 @@
 
 ### Tests for User Story 2
 
-- [ ] T041 [P] [US2] Unit test for StockQuotesSnapshot entity in tests/SecuritiesTradingApi.UnitTests/Models/StockQuotesSnapshotTests.cs
-- [ ] T042 [P] [US2] Unit test for TwseApiClient retry logic with exponential backoff (1s, 2s) in tests/SecuritiesTradingApi.UnitTests/Infrastructure/TwseApiClientTests.cs
-- [ ] T042a [P] [US2] Integration test for TwseApiClient retry behavior under API failures in tests/SecuritiesTradingApi.IntegrationTests/Infrastructure/TwseApiClientRetryTests.cs
-- [ ] T043 [P] [US2] Unit test for StockService.GetStockQuoteAsync in tests/SecuritiesTradingApi.UnitTests/Services/StockServiceTests_Quote.cs
-- [ ] T044 [P] [US2] Integration test for GET /api/stocks/{stockCode}/quote endpoint in tests/SecuritiesTradingApi.IntegrationTests/Api/StocksControllerTests_Quote.cs
+- [X] T041 [P] [US2] Unit test for StockQuotesSnapshot entity in tests/SecuritiesTradingApi.UnitTests/Models/StockQuotesSnapshotTests.cs
+- [X] T042 [P] [US2] Unit test for TwseApiClient retry logic with exponential backoff (1s, 2s) in tests/SecuritiesTradingApi.UnitTests/Infrastructure/TwseApiClientTests.cs
+- [X] T042a [P] [US2] Integration test for TwseApiClient retry behavior under API failures in tests/SecuritiesTradingApi.IntegrationTests/Infrastructure/TwseApiClientRetryTests.cs
+- [X] T043 [P] [US2] Unit test for StockService.GetStockQuoteAsync in tests/SecuritiesTradingApi.UnitTests/Services/StockServiceTests_Quote.cs
+- [X] T044 [P] [US2] Integration test for GET /api/stocks/{stockCode}/quote endpoint in tests/SecuritiesTradingApi.IntegrationTests/Api/StocksControllerTests_Quote.cs
 
 ### Implementation for User Story 2
 
-- [ ] T045 [P] [US2] Create StockQuotesSnapshot entity class for In-Memory OLTP in src/SecuritiesTradingApi/Models/Entities/StockQuotesSnapshot.cs
-- [ ] T046 [P] [US2] Create StockQuoteDto response class in src/SecuritiesTradingApi/Models/Dtos/StockQuoteDto.cs
-- [ ] T047 [US2] Add StockQuotesSnapshot DbSet to TradingDbContext in src/SecuritiesTradingApi/Data/TradingDbContext.cs
-- [ ] T048 [US2] Create SQL script for In-Memory StockQuotesSnapshot table (SCHEMA_ONLY) in database/scripts/03-create-inmemory-tables.sql
-- [ ] T049 [US2] Configure StockQuotesSnapshot as memory-optimized in TradingDbContext.OnModelCreating in src/SecuritiesTradingApi/Data/TradingDbContext.cs
-- [ ] T050 [US2] Implement StockService.GetStockQuoteAsync method with TWSE API integration in src/SecuritiesTradingApi/Services/StockService.cs
-- [ ] T051 [US2] Add GET /api/stocks/{stockCode}/quote endpoint to StocksController in src/SecuritiesTradingApi/Controllers/StocksController.cs
-- [ ] T052 [US2] Implement quote data caching with 5-second TTL in src/SecuritiesTradingApi/Services/StockService.cs
-- [ ] T052a [US2] Implement cache management (eviction policy, memory limits, cache miss handling, invalidation on errors) in src/SecuritiesTradingApi/Infrastructure/Cache/MemoryCacheService.cs
-- [ ] T053 [US2] Add error handling for external API failures (503 errors) in src/SecuritiesTradingApi/Infrastructure/Middleware/ErrorHandlingMiddleware.cs
+- [X] T045 [P] [US2] Create StockQuotesSnapshot entity class for In-Memory OLTP in src/SecuritiesTradingApi/Models/Entities/StockQuotesSnapshot.cs
+- [X] T046 [P] [US2] Create StockQuoteDto response class in src/SecuritiesTradingApi/Models/Dtos/StockQuoteDto.cs
+- [X] T047 [US2] Add StockQuotesSnapshot DbSet to TradingDbContext in src/SecuritiesTradingApi/Data/TradingDbContext.cs
+- [X] T048 [US2] Create SQL script for In-Memory StockQuotesSnapshot table (SCHEMA_ONLY) in database/scripts/03-create-inmemory-tables.sql
+- [X] T049 [US2] Configure StockQuotesSnapshot as memory-optimized in TradingDbContext.OnModelCreating in src/SecuritiesTradingApi/Data/TradingDbContext.cs
+- [X] T050 [US2] Implement StockService.GetStockQuoteAsync method with TWSE API integration in src/SecuritiesTradingApi/Services/StockService.cs
+- [X] T051 [US2] Add GET /api/stocks/{stockCode}/quote endpoint to StocksController in src/SecuritiesTradingApi/Controllers/StocksController.cs
+- [X] T052 [US2] Implement quote data caching with 5-second TTL in src/SecuritiesTradingApi/Services/StockService.cs
+- [X] T052a [US2] Implement cache management (eviction policy, memory limits, cache miss handling, invalidation on errors) in src/SecuritiesTradingApi/Infrastructure/Cache/MemoryCacheService.cs
+- [X] T053 [US2] Add error handling for external API failures (503 errors) in src/SecuritiesTradingApi/Infrastructure/Middleware/ErrorHandlingMiddleware.cs
 
 **Checkpoint**: User Stories 1 AND 2 完成 - 可獨立測試股票查詢和即時報價功能
 
@@ -138,30 +138,30 @@
 
 ### Tests for User Story 3
 
-- [ ] T054 [P] [US3] Unit test for OrdersWrite entity validation in tests/SecuritiesTradingApi.UnitTests/Models/OrdersWriteTests.cs
-- [ ] T055 [P] [US3] Unit test for OrdersRead entity in tests/SecuritiesTradingApi.UnitTests/Models/OrdersReadTests.cs
-- [ ] T056 [P] [US3] Unit test for CreateOrderValidator with various scenarios in tests/SecuritiesTradingApi.UnitTests/Validators/CreateOrderValidatorTests.cs
-- [ ] T057 [P] [US3] Unit test for OrderService.CreateOrderAsync in tests/SecuritiesTradingApi.UnitTests/Services/OrderServiceTests.cs
-- [ ] T058 [P] [US3] Integration test for POST /api/orders endpoint in tests/SecuritiesTradingApi.IntegrationTests/Api/OrdersControllerTests.cs
+- [X] T054 [P] [US3] Unit test for OrdersWrite entity validation in tests/SecuritiesTradingApi.UnitTests/Models/OrdersWriteTests.cs
+- [X] T055 [P] [US3] Unit test for OrdersRead entity in tests/SecuritiesTradingApi.UnitTests/Models/OrdersReadTests.cs
+- [X] T056 [P] [US3] Unit test for CreateOrderValidator with various scenarios in tests/SecuritiesTradingApi.UnitTests/Validators/CreateOrderValidatorTests.cs
+- [X] T057 [P] [US3] Unit test for OrderService.CreateOrderAsync in tests/SecuritiesTradingApi.UnitTests/Services/OrderServiceTests.cs
+- [X] T058 [P] [US3] Integration test for POST /api/orders endpoint in tests/SecuritiesTradingApi.IntegrationTests/Api/OrdersControllerTests.cs
 
 ### Implementation for User Story 3
 
-- [ ] T059 [P] [US3] Create OrdersWrite entity class for CQRS write side in src/SecuritiesTradingApi/Models/Entities/OrdersWrite.cs
-- [ ] T060 [P] [US3] Create OrdersRead entity class for CQRS read side in src/SecuritiesTradingApi/Models/Entities/OrdersRead.cs
-- [ ] T061 [P] [US3] Create CreateOrderDto request class in src/SecuritiesTradingApi/Models/Dtos/CreateOrderDto.cs
-- [ ] T062 [P] [US3] Create CreateOrderResultDto response class in src/SecuritiesTradingApi/Models/Dtos/CreateOrderResultDto.cs
-- [ ] T063 [US3] Add OrdersWrite and OrdersRead DbSets to TradingDbContext in src/SecuritiesTradingApi/Data/TradingDbContext.cs
-- [ ] T064 [US3] Create EF Core entity configuration for OrdersWrite with partitioning in src/SecuritiesTradingApi/Data/Configurations/OrdersWriteConfiguration.cs
-- [ ] T065 [US3] Create EF Core entity configuration for OrdersRead with denormalization in src/SecuritiesTradingApi/Data/Configurations/OrdersReadConfiguration.cs
-- [ ] T066 [US3] Create EF Core migration for Orders tables in src/SecuritiesTradingApi/Data/Migrations/
-- [ ] T067 [P] [US3] Implement CreateOrderValidator with stock code, price range, and quantity validation in src/SecuritiesTradingApi/Infrastructure/Validators/CreateOrderValidator.cs
-- [ ] T068 [P] [US3] Create IOrderService interface in src/SecuritiesTradingApi/Services/IOrderService.cs
-- [ ] T069 [US3] Implement OrderService.CreateOrderAsync with CQRS write logic in src/SecuritiesTradingApi/Services/OrderService.cs
-- [ ] T070 [US3] Implement OrderService synchronization from OrdersWrite to OrdersRead in src/SecuritiesTradingApi/Services/OrderService.cs
-- [ ] T071 [US3] Create OrdersController with POST /api/orders endpoint in src/SecuritiesTradingApi/Controllers/OrdersController.cs
-- [ ] T072 [US3] Implement price validation against limit up/down prices in src/SecuritiesTradingApi/Services/OrderService.cs
-- [ ] T073 [US3] Implement quantity validation (1000 multiples) in src/SecuritiesTradingApi/Infrastructure/Validators/CreateOrderValidator.cs
-- [ ] T074 [US3] Register OrderService in src/SecuritiesTradingApi/Program.cs
+- [X] T059 [P] [US3] Create OrdersWrite entity class for CQRS write side in src/SecuritiesTradingApi/Models/Entities/OrdersWrite.cs
+- [X] T060 [P] [US3] Create OrdersRead entity class for CQRS read side in src/SecuritiesTradingApi/Models/Entities/OrdersRead.cs
+- [X] T061 [P] [US3] Create CreateOrderDto request class in src/SecuritiesTradingApi/Models/Dtos/CreateOrderDto.cs
+- [X] T062 [P] [US3] Create CreateOrderResultDto response class in src/SecuritiesTradingApi/Models/Dtos/CreateOrderResultDto.cs
+- [X] T063 [US3] Add OrdersWrite and OrdersRead DbSets to TradingDbContext in src/SecuritiesTradingApi/Data/TradingDbContext.cs
+- [X] T064 [US3] Create EF Core entity configuration for OrdersWrite with partitioning in src/SecuritiesTradingApi/Data/Configurations/OrdersWriteConfiguration.cs
+- [X] T065 [US3] Create EF Core entity configuration for OrdersRead with denormalization in src/SecuritiesTradingApi/Data/Configurations/OrdersReadConfiguration.cs
+- [X] T066 [US3] Create EF Core migration for Orders tables in src/SecuritiesTradingApi/Data/Migrations/
+- [X] T067 [P] [US3] Implement CreateOrderValidator with stock code, price range, and quantity validation in src/SecuritiesTradingApi/Infrastructure/Validators/CreateOrderValidator.cs
+- [X] T068 [P] [US3] Create IOrderService interface in src/SecuritiesTradingApi/Services/IOrderService.cs
+- [X] T069 [US3] Implement OrderService.CreateOrderAsync with CQRS write logic in src/SecuritiesTradingApi/Services/OrderService.cs
+- [X] T070 [US3] Implement OrderService synchronization from OrdersWrite to OrdersRead in src/SecuritiesTradingApi/Services/OrderService.cs
+- [X] T071 [US3] Create OrdersController with POST /api/orders endpoint in src/SecuritiesTradingApi/Controllers/OrdersController.cs
+- [X] T072 [US3] Implement price validation against limit up/down prices in src/SecuritiesTradingApi/Services/OrderService.cs
+- [X] T073 [US3] Implement quantity validation (1000 multiples) in src/SecuritiesTradingApi/Infrastructure/Validators/CreateOrderValidator.cs
+- [X] T074 [US3] Register OrderService in src/SecuritiesTradingApi/Program.cs
 
 **Checkpoint**: User Stories 1, 2, AND 3 完成 - 可獨立測試完整的股票查詢、報價與委託下單流程
 
@@ -178,15 +178,15 @@
 
 ### Tests for User Story 4
 
-- [ ] T075 [P] [US4] Unit test for OrderService.GetOrderByIdAsync in tests/SecuritiesTradingApi.UnitTests/Services/OrderServiceTests_Query.cs
-- [ ] T076 [P] [US4] Integration test for GET /api/orders/{orderId} endpoint in tests/SecuritiesTradingApi.IntegrationTests/Api/OrdersControllerTests_Query.cs
+- [X] T075 [P] [US4] Unit test for OrderService.GetOrderByIdAsync in tests/SecuritiesTradingApi.UnitTests/Services/OrderServiceTests_Query.cs
+- [X] T076 [P] [US4] Integration test for GET /api/orders/{orderId} endpoint in tests/SecuritiesTradingApi.IntegrationTests/Api/OrdersControllerTests_Query.cs
 
 ### Implementation for User Story 4
 
-- [ ] T077 [P] [US4] Create OrderDto response class in src/SecuritiesTradingApi/Models/Dtos/OrderDto.cs
-- [ ] T078 [US4] Implement OrderService.GetOrderByIdAsync method querying OrdersRead in src/SecuritiesTradingApi/Services/OrderService.cs
-- [ ] T079 [US4] Add GET /api/orders/{orderId} endpoint to OrdersController in src/SecuritiesTradingApi/Controllers/OrdersController.cs
-- [ ] T080 [US4] Implement 404 error handling for non-existent order IDs in src/SecuritiesTradingApi/Controllers/OrdersController.cs
+- [X] T077 [P] [US4] Create OrderDto response class in src/SecuritiesTradingApi/Models/Dtos/OrderDto.cs
+- [X] T078 [US4] Implement OrderService.GetOrderByIdAsync method querying OrdersRead in src/SecuritiesTradingApi/Services/OrderService.cs
+- [X] T079 [US4] Add GET /api/orders/{orderId} endpoint to OrdersController in src/SecuritiesTradingApi/Controllers/OrdersController.cs
+- [X] T080 [US4] Implement 404 error handling for non-existent order IDs in src/SecuritiesTradingApi/Controllers/OrdersController.cs
 
 **Checkpoint**: All user stories (1-4) 完成 - 完整 MVP 功能可獨立測試
 
@@ -196,17 +196,17 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T081 [P] Add XML documentation comments to all public APIs in src/SecuritiesTradingApi/Controllers/
-- [ ] T082 [P] Create k6 load test script for stock quote endpoint in k6-tests/load-test.js
-- [ ] T083 [P] Create k6 stress test script for order creation endpoint in k6-tests/stress-test.js
-- [ ] T084 [P] Update OpenAPI/Swagger documentation with examples in src/SecuritiesTradingApi/Program.cs
-- [ ] T085 Implement database connection resilience with retry policies in src/SecuritiesTradingApi/Program.cs
-- [ ] T086 [P] Add comprehensive logging for all service operations in src/SecuritiesTradingApi/Services/
-- [ ] T087 [P] Create README.md with setup and run instructions in SecuritiesTradingApi/README.md
-- [ ] T088 Run quickstart.md validation to ensure all setup steps work correctly
-- [ ] T089 Performance optimization: Add database indexes per data-model.md specifications
-- [ ] T090 Security review: Validate all input sanitization and error message exposure
-- [ ] T090a [P] Resilience testing: Create chaos tests for external API failures (circuit breaker, timeout scenarios, retry verification) using Polly or test mocks in tests/SecuritiesTradingApi.IntegrationTests/Resilience/
+- [X] T081 [P] Add XML documentation comments to all public APIs in src/SecuritiesTradingApi/Controllers/
+- [X] T082 [P] Create k6 load test script for stock quote endpoint in k6-tests/load-test.js
+- [X] T083 [P] Create k6 stress test script for order creation endpoint in k6-tests/stress-test.js
+- [X] T084 [P] Update OpenAPI/Swagger documentation with examples in src/SecuritiesTradingApi/Program.cs
+- [X] T085 Implement database connection resilience with retry policies in src/SecuritiesTradingApi/Program.cs
+- [X] T086 [P] Add comprehensive logging for all service operations in src/SecuritiesTradingApi/Services/
+- [X] T087 [P] Create README.md with setup and run instructions in SecuritiesTradingApi/README.md
+- [X] T088 Run quickstart.md validation to ensure all setup steps work correctly
+- [X] T089 Performance optimization: Add database indexes per data-model.md specifications
+- [X] T090 Security review: Validate all input sanitization and error message exposure
+- [X] T090a [P] Resilience testing: Create chaos tests for external API failures (circuit breaker, timeout scenarios, retry verification) using Polly or test mocks in tests/SecuritiesTradingApi.IntegrationTests/Resilience/
 
 ---
 
