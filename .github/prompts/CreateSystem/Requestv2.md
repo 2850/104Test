@@ -14,7 +14,7 @@
 
 ### 股票代號查詢
 
-股票代號查詢資料建立: 進行資料資料預處理 .githbu/prompts/t187ap03_L.csv，我只需要此欄位的 公司代號,公司名稱,公司簡稱。
+股票代號查詢資料建立: 進行資料資料預處理 .github/prompts/t187ap03_L.csv，我只需要此欄位的 公司代號,公司名稱,公司簡稱。
 萃取資料後寫入資料表Stock
 
 1. 由於只有RESTful API，務必檢查股票代號是否存在。GET /api/v1/stocks?symbol=&keyword=
