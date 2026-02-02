@@ -244,7 +244,7 @@ public class OrderBookLevels
 | OrderId | BIGINT | PK, IDENTITY(1,1) | 委託單編號 |
 | UserId | INT | NOT NULL | 使用者編號（MVP 固定 1） |
 | StockCode | NVARCHAR(10) | NOT NULL, FK | 股票代號 |
-| OrderType | TINYINT | NOT NULL | 買賣別（1=買進, 2=賣出） |
+| OrderType | TINYINT | NOT NULL | 買賣別（1=買進, 2=賣出，對應 spec.md 中的「買賣別」術語） |
 | Price | DECIMAL(18,2) | NOT NULL | 委託價格 |
 | Quantity | INT | NOT NULL | 委託數量 |
 | OrderStatus | TINYINT | NOT NULL, DEFAULT 1 | 委託狀態（1=已委託, MVP 固定） |
@@ -311,8 +311,8 @@ public class OrdersWrite
 | StockCode | NVARCHAR(10) | NOT NULL | 股票代號 |
 | StockName | NVARCHAR(100) | NULL | 股票名稱（反正規化） |
 | StockNameShort | NVARCHAR(50) | NULL | 股票簡稱（反正規化） |
-| OrderType | TINYINT | NOT NULL | 買賣別 |
-| OrderTypeName | NVARCHAR(10) | NULL | 買賣別名稱（反正規化："買進"/"賣出"） |
+| OrderType | TINYINT | NOT NULL | 買賣別（1=買進, 2=賣出） |
+| OrderTypeName | NVARCHAR(10) | NULL | 買賣別名稱（反正規化：「買進」/「賣出」，對應 spec.md 中的「買賣別」術語） |
 | Price | DECIMAL(18,2) | NOT NULL | 委託價格 |
 | Quantity | INT | NOT NULL | 委託數量 |
 | FilledQuantity | INT | NOT NULL, DEFAULT 0 | 已成交數量（MVP 固定 0） |

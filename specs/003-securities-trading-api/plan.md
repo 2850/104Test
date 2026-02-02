@@ -387,12 +387,41 @@ SecuritiesTradingApi/                    # Solution 根目錄
   - 股票查詢次數
   - 即時報價查詢次數
   - 速率限制觸發次數
+- **SC-007 量測機制**:
+  - 定義「第一次成功」為使用者完成「股票查詢 → 價格查詢 → 委託建立 → 委託查詢」完整流程，且無需重試或修正錯誤
+  - 量測方式：在應用程式日誌中記錄每個 API 請求的 SessionId（從 HTTP Header 或 Cookie 取得）與操作類型
+  - 計算公式：`成功率 = (完整流程無錯誤的 Session 數) / (嘗試流程的總 Session 數) × 100%`
+  - 實作方式：使用 Serilog 記錄結構化事件，包含 SessionId、OperationType、IsSuccess、ErrorCode 等欄位，定期（每日）透過日誌分析工具（如 Log Analytics 或 SQL 查詢）計算成功率
+  - 目標值：90% 使用者第一次成功率
+  - 備註：MVP 階段不實作自動化追蹤，透過日誌手動分析驗證
 
 **MVP 階段排除的監控功能**:
 - Application Insights / Prometheus 整合
 - 即時告警（Email/SMS）
 - Dashboard 視覺化（Grafana）
 - 分散式追蹤（OpenTelemetry）
+
+### 速率限制分散式部署考量
+
+**Per-IP 限制的已知限制**:
+- **NAT/Proxy 問題**: 多個使用者共用同一對外 IP（如企業網路、ISP NAT），會共享速率限制額度
+- **反向代理**: 在 Load Balancer 或 CDN 後方，所有請求可能顯示為相同 IP
+
+**MVP 階段解決方案**:
+- 優先使用 `X-Forwarded-For` header 取得原始客戶端 IP（需配置反向代理正確傳遞）
+- 在 ASP.NET Core Middleware 實作 IP 解析邏輯：
+  ```csharp
+  var forwardedFor = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+  var clientIp = !string.IsNullOrEmpty(forwardedFor) 
+      ? forwardedFor.Split(',')[0].Trim() 
+      : context.Connection.RemoteIpAddress?.ToString();
+  ```
+- FR-024 已註明此限制，提醒運維團隊配置反向代理
+
+**未來改進方案（Post-MVP）**:
+- 引入使用者認證後，改為 per-user 或 per-API-key 限制
+- 使用分散式 Rate Limiter（Redis + Sliding Window）取代 InMemory 實作
+- 提供不同速率限制層級（免費用戶 10 req/s，付費用戶 100 req/s）
 
 ---
 
