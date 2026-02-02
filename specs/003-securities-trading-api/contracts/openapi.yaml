@@ -27,11 +27,11 @@ info:
     url: https://opensource.org/licenses/MIT
 
 servers:
-  - url: http://localhost:5000/api
+  - url: http://localhost:5000/api/v1
     description: 本地開發環境
-  - url: https://api-staging.example.com/api
+  - url: https://api-staging.example.com/api/v1
     description: 測試環境
-  - url: https://api.example.com/api
+  - url: https://api.example.com/api/v1
     description: 正式環境
 
 tags:
@@ -679,7 +679,7 @@ components:
           properties:
             errors:
               type: object
-              description: 欄位驗證錯誤清單（Key: 欄位名稱, Value: 錯誤訊息陣列）
+              description: 欄位驗證錯誤清單（Key- 欄位名稱, Value-錯誤訊息陣列）
               additionalProperties:
                 type: array
                 items:
