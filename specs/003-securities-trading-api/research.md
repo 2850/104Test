@@ -10,78 +10,93 @@
 
 ---
 
-## 1. FinMind API 整合最佳實務
+## 1. 台灣證交所 API 整合最佳實務
 
-### Decision: 使用 FinMind API 作為台灣證券交易資料來源
+### Decision: 使用台灣證券交易所官方即時報價 API
 
 ### Rationale
-- FinMind 提供免費的台灣證券交易所即時報價 API
-- 支援 RESTful 介面，易於整合
-- 提供完整的股票資訊（價格、成交量、五檔買賣）
-- 社群活躍，文件完整
+- 台灣證交所提供官方即時報價 API（https://mis.twse.com.tw/stock/api/getStockInfo.jsp）
+- 免費、穩定、無需註冊或 API Token
+- 支援 HTTP GET 請求，易於整合
+- 提供完整的股票資訊（價格、成交量、五檔買賣、漲跌停價格）
+- 官方資料來源，資料品質有保證
 
 ### Alternatives Considered
-1. **直接串接證交所公開資訊觀測站**
-   - 拒絕原因：無官方 API，需爬蟲，維護成本高，不穩定
+1. **使用第三方資料聚合服務（如 FinMind）**
+   - 拒絕原因：需註冊、有速率限制，不如直接使用官方 API
    
 2. **使用付費金融資料服務商（如 XQ 全球贏家）**
-   - 拒絕原因：MVP 階段預算限制，FinMind 免費方案已足夠
+   - 拒絕原因：MVP 階段預算限制，官方免費 API 已足夠
 
 3. **自建爬蟲系統**
    - 拒絕原因：開發時間長，法律風險，不符合 MVP 原則
 
 ### Implementation Details
 
-#### API 認證機制
+#### API 設定
 ```csharp
 // appsettings.json
 {
-  "FinMindApi": {
-    "BaseUrl": "https://api.finmindtrade.com/api/v4",
-    "ApiToken": "YOUR_API_TOKEN",  // 免費用戶需註冊取得
+  "TwseApi": {
+    "BaseUrl": "https://mis.twse.com.tw/stock/api",
     "Timeout": 5000,                // 5秒逾時
     "RetryCount": 2,
-    "RetryDelays": [1000, 2000]     // 指數退避：1s, 2s
+    "RetryDelays": [1000, 2000],    // 指數退避：1s, 2s
+    "UserDelay": 5000               // 台灣證交所建議延遲時間（從 API 回應取得）
   }
 }
 ```
 
 #### 速率限制
-- **免費方案**: 600 requests/hour
+- **官方建議**: userDelay 5000ms（5 秒）
 - **應對策略**: 
-  - 使用 InMemory Cache 快取查詢結果（TTL: 10 秒）
+  - 使用 InMemory Cache 快取查詢結果（TTL: 5 秒，配合官方建議）
   - 避免重複查詢相同股票
   - 實作本地速率限制保護
 
 #### 資料格式範例
 ```json
 {
-  "msg": "success",
-  "status": 200,
-  "data": [
+  "msgArray": [
     {
-      "date": "2026-02-02",
-      "stock_id": "2330",
-      "Trading_Volume": 52342,
-      "Trading_money": 9876543210,
-      "open": 950.0,
-      "max": 980.0,
-      "min": 945.0,
-      "close": 975.0,
-      "spread": 25.0,
-      "Trading_turnover": 98765
+      "c": "2330",              // 股票代號
+      "n": "台積電",            // 股票名稱
+      "nf": "台灣積體電路製造股份有限公司",  // 股票全名
+      "z": "1775.0000",        // 最新成交價
+      "y": "1805.0000",        // 昨收價
+      "o": "1790.0000",        // 開盤價
+      "h": "1800.0000",        // 最高價
+      "l": "1775.0000",        // 最低價
+      "u": "1985.0000",        // 漲停價
+      "w": "1625.0000",        // 跌停價
+      "tv": "40612",           // 當日累積成交量
+      "v": "14289",            // 單筆成交量
+      "a": "1780.0000_1785.0000_1790.0000_1795.0000_1800.0000_",  // 五檔賣價
+      "b": "1775.0000_1770.0000_1765.0000_1760.0000_1755.0000_",  // 五檔買價
+      "g": "1705_2587_1322_1754_638_",     // 五檔賣量
+      "f": "199_36_82_187_954_",           // 五檔買量
+      "d": "20260130",         // 日期
+      "t": "13:30:00",         // 時間
+      "tlong": "1769754600000" // 時間戳記
     }
-  ]
+  ],
+  "rtcode": "0000",
+  "rtmessage": "OK",
+  "queryTime": {
+    "sysDate": "20260130",
+    "sysTime": "17:11:12"
+  },
+  "userDelay": 5000
 }
 ```
 
 #### 錯誤處理與重試策略
 ```csharp
-public class FinMindApiClient : IFinMindApiClient
+public class TwseApiClient : ITwseApiClient
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<FinMindApiClient> _logger;
-    private readonly FinMindApiSettings _settings;
+    private readonly ILogger<TwseApiClient> _logger;
+    private readonly TwseApiSettings _settings;
 
     public async Task<StockQuoteDto> GetStockQuoteAsync(string stockCode, CancellationToken cancellationToken = default)
     {
@@ -92,7 +107,9 @@ public class FinMindApiClient : IFinMindApiClient
         {
             try
             {
-                var response = await _httpClient.GetAsync($"data/Taiwan/StockPrice/{stockCode}", cancellationToken);
+                // 台灣證交所 API 格式：ex_ch=tse_2330.tw
+                var url = $"getStockInfo.jsp?ex_ch=tse_{stockCode}.tw";
+                var response = await _httpClient.GetAsync(url, cancellationToken);
                 response.EnsureSuccessStatusCode();
                 
                 var content = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -102,13 +119,13 @@ public class FinMindApiClient : IFinMindApiClient
             {
                 lastException = ex;
                 var delay = _settings.RetryDelays[retryCount];
-                _logger.LogWarning($"FinMind API call failed, retrying in {delay}ms... (Attempt {retryCount + 1})");
+                _logger.LogWarning($"TWSE API call failed, retrying in {delay}ms... (Attempt {retryCount + 1})");
                 await Task.Delay(delay, cancellationToken);
                 retryCount++;
             }
         }
 
-        _logger.LogError(lastException, $"FinMind API call failed after {_settings.RetryCount} retries");
+        _logger.LogError(lastException, $"TWSE API call failed after {_settings.RetryCount} retries");
         throw new ExternalApiException("無法取得即時資料，請稍後再試", lastException);
     }
 }
@@ -116,9 +133,9 @@ public class FinMindApiClient : IFinMindApiClient
 
 #### API 回應快取策略
 ```csharp
-public class CachedFinMindApiClient : IFinMindApiClient
+public class CachedTwseApiClient : ITwseApiClient
 {
-    private readonly IFinMindApiClient _innerClient;
+    private readonly ITwseApiClient _innerClient;
     private readonly IMemoryCache _cache;
 
     public async Task<StockQuoteDto> GetStockQuoteAsync(string stockCode, CancellationToken cancellationToken = default)
@@ -132,9 +149,10 @@ public class CachedFinMindApiClient : IFinMindApiClient
 
         var quote = await _innerClient.GetStockQuoteAsync(stockCode, cancellationToken);
         
+        // 使用台灣證交所建議的 userDelay（5 秒）作為快取時間
         _cache.Set(cacheKey, quote, new MemoryCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10)
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5)
         });
 
         return quote;
@@ -432,13 +450,13 @@ public class OrderService : IOrderService
 
 ## 4. FluentValidation 非同步驗證
 
-### Decision: 使用 FluentValidation 11.x，註冊為 Singleton，支援非同步驗證
+### Decision: 使用 FluentValidation 7.x，註冊為 Singleton，支援非同步驗證
 
 ### Rationale
 - FluentValidation 提供宣告式驗證語法，易於維護
 - MustAsync 支援非同步資料庫查詢
 - 註冊為 Singleton 避免重複建立驗證器實例
-- 版本選擇 11.x 避免 8.x+ FluentAssertions 付費限制
+- 版本選擇 7.x 避免 8.x+ FluentAssertions 付費限制
 
 ### Alternatives Considered
 1. **Data Annotations**
@@ -1191,7 +1209,7 @@ k6-reporter results.json --output report.html
 
 所有技術決策已完成，無 NEEDS CLARIFICATION 項目。主要技術選型：
 
-1. **外部 API**: FinMind API（免費方案，600 req/hour，支援重試機制）
+1. **外部 API**: 台灣證交所官方即時報價 API（免費、無速率限制、支援重試機制，建議 5 秒快取）
 2. **資料庫**: SQL Server In-Memory OLTP（混合 EF Core + 手動 SQL）
 3. **讀寫分離**: CQRS（即時同步，強一致性）
 4. **驗證框架**: FluentValidation 11.x（Singleton 註冊，支援非同步驗證）

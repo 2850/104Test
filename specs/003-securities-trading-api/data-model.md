@@ -164,9 +164,9 @@ public class StockQuotesSnapshot
 }
 ```
 
-**資料來源**: FinMind API
+**資料來源**: 台灣證券交易所官方即時報價 API (https://mis.twse.com.tw/stock/api/getStockInfo.jsp)
 
-**更新頻率**: 每 10 秒一次（透過 InMemory Cache 快取）
+**更新頻率**: 每 5 秒一次（透過 InMemory Cache 快取，配合台灣證交所 userDelay 建議）
 
 ---
 

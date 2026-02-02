@@ -394,13 +394,14 @@ start load-test-report.html
 
 ### Q2: API 回傳 503 "無法取得即時資料"
 
-**原因**: FinMind API 呼叫失敗或逾時
+**原因**: 台灣證交所 API 呼叫失敗或逾時
 
 **解決方案**:
 1. 檢查網路連線
-2. 確認 FinMind API Token（若需要）
-3. 檢查 `appsettings.json` 的 `FinMindApi.BaseUrl`
+2. 確認可直接存取 https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_2330.tw
+3. 檢查 `appsettings.json` 的 `TwseApi.BaseUrl`
 4. 查看 Log 檔案: `logs/app.log`
+5. 檢查是否在交易時段（平日 09:00-13:30）
 
 ---
 
@@ -411,7 +412,8 @@ start load-test-report.html
 **解決方案**:
 1. 先呼叫 `GET /api/stocks/{stockCode}/quote` 取得漲跌停價格
 2. 確認委託價格在 `limitDownPrice` ~ `limitUpPrice` 之間
-3. 檢查 FinMind API 回傳資料是否正確
+3. 檢查台灣證交所 API 回傳資料是否正確
+4. 確認在交易時段，非交易時段可能無最新資料
 
 ---
 

@@ -12,7 +12,7 @@
 ## Technical Context
 
 **Language/Version**: C# / .NET 8  
-**Primary Dependencies**: ASP.NET Core Web API, Entity Framework Core 8, FluentValidation 11.x (避免 8.x+ 付費版本), xUnit, InMemory Cache  
+**Primary Dependencies**: ASP.NET Core Web API, Entity Framework Core 8, FluentValidation 11.x (避免 8.x+ 付費版本), xUnit, InMemory Cache, HttpClient (台灣證交所 API)  
 **Storage**: Microsoft SQL Server 2019+ (支援 In-Memory OLTP)，使用三層式資料架構：
   - Hot Layer: StockQuotes_Snapshot (In-Memory, Schema-Only)
   - Warm Layer: OrderBook_Levels (In-Memory, Durable)
