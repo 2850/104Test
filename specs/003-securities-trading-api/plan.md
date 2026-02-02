@@ -294,6 +294,108 @@ SecuritiesTradingApi/                    # Solution 根目錄
 
 ---
 
+## 非功能需求 (Non-Functional Requirements)
+
+### 效能需求
+
+- **API 回應時間**: p95 < 200ms, p99 < 500ms（不含外部 API 呼叫）
+- **股票代號查詢**: < 1 秒（直接查詢資料庫，InMemory Cache 加速）
+- **即時報價查詢**: 正常情況 < 3 秒（含外部 API），最壞情況（含重試）< 9 秒
+- **委託下單**: < 2 秒（含驗證與資料庫寫入）
+- **資料庫查詢**: Simple queries < 50ms, Complex queries < 200ms
+- **快取命中率**: Stock master data > 95%, Quote data > 80%
+
+### 併發處理能力
+
+- **目標負載**: 100 concurrent users
+- **委託下單併發**: 50 TPS (Transactions Per Second)
+- **查詢併發**: 200 RPS (Requests Per Second)
+- **峰值處理**: 支援 2x 正常負載（200 concurrent users）短時間內不降級
+- **資料庫連線池**: 最小 10 connections, 最大 50 connections
+- **委託單編號唯一性**: 使用 SQL Server SEQUENCE 確保併發建立時無重複
+
+### 資料一致性
+
+- **委託單寫入**: 強一致性（Strong Consistency），使用資料庫 ACID 交易保證
+- **即時報價快取**: 最終一致性（Eventual Consistency），允許 5 秒延遲
+- **CQRS 讀寫分離**: OrdersWrite → OrdersRead 同步延遲 < 100ms
+- **交易隔離等級**: Read Committed（預設），避免髒讀與不可重複讀
+- **樂觀併發控制**: 使用 RowVersion (timestamp) 偵測併發更新衝突
+
+### 可用性與可靠性
+
+- **系統可用性目標**: 99% uptime（MVP 階段，約 7.2 小時/月停機時間）
+- **錯誤恢復**: 所有 API 呼叫失敗後自動重試（外部 API: 2 次重試，指數退避）
+- **容錯機制**: 
+  - 外部 API 失敗：回傳友善錯誤訊息，不中斷服務
+  - 資料庫連線失敗：回傳 HTTP 503，記錄錯誤日誌
+  - 快取失敗：降級至直接查詢資料庫
+- **健康檢查端點**: `/health` 端點檢查資料庫連線與外部 API 可用性
+- **優雅關閉**: 應用程式關閉時完成正在處理的請求，不接受新請求
+
+### 安全性基線
+
+- **輸入驗證**: 
+  - 所有 API 參數使用 FluentValidation 驗證
+  - 防範 SQL Injection：EF Core 參數化查詢
+  - 防範 XSS：API 回傳 JSON，不渲染 HTML
+- **速率限制**: 每個客戶端 IP 每秒 10 次請求，超過回傳 HTTP 429
+- **錯誤訊息**: 不暴露技術細節（如資料庫連線字串、堆疊追蹤），僅記錄於日誌
+- **HTTPS**: 正式環境強制使用 HTTPS（開發環境可使用 HTTP）
+- **CORS 設定**: 限制允許的來源網域（MVP 階段暫時開放所有來源，正式環境需限制）
+- **資料加密**: 資料庫連線字串使用 ASP.NET Core Secret Manager 儲存
+
+**MVP 階段排除的安全功能**:
+- 使用者認證與授權（JWT, OAuth）
+- API Key 驗證
+- 請求簽章驗證
+- 資料欄位級別加密（如委託單金額加密）
+
+### 資料保存與備份
+
+- **委託單資料**: 永久保存，不刪除（僅標記狀態）
+- **即時報價資料**: Hot Layer (StockQuotesSnapshot) 僅保留最新資料，歷史資料不保存（MVP 階段）
+- **應用程式日誌**: 保存 30 天，自動輪替（每日輪替，最多 30 個檔案）
+- **資料庫備份**: 
+  - 完整備份：每週一次（週日凌晨 2:00）
+  - 差異備份：每日一次（凌晨 2:00）
+  - 交易日誌備份：每小時一次（正式環境）
+  - 備份保留：完整備份保留 4 週，差異備份保留 1 週
+- **災難復原**: 
+  - 復原時間目標 (RTO): 4 小時（MVP 階段）
+  - 復原點目標 (RPO): 1 小時（最多丟失 1 小時交易日誌）
+  - 備份異地儲存：本地 + 雲端儲存（Azure Blob Storage）
+
+**MVP 階段簡化**:
+- 無自動化災難演練
+- 無即時資料庫複寫（無 Always On 可用性群組）
+- 無自動化備份驗證（手動抽檢）
+
+### 監控與日誌
+
+- **應用程式日誌**:
+  - 使用 Serilog 結構化日誌
+  - 記錄等級：Debug（開發）, Information（正式）, Warning, Error
+  - 必須記錄欄位：時間戳記、請求 ID (TraceId)、使用者 IP、API 路徑、錯誤訊息、堆疊追蹤（僅 Error）
+- **效能追蹤**:
+  - API 回應時間（p50, p95, p99）
+  - 資料庫查詢耗時
+  - 外部 API 呼叫耗時與成功率
+  - 快取命中率
+- **業務指標**:
+  - 委託單建立成功率
+  - 股票查詢次數
+  - 即時報價查詢次數
+  - 速率限制觸發次數
+
+**MVP 階段排除的監控功能**:
+- Application Insights / Prometheus 整合
+- 即時告警（Email/SMS）
+- Dashboard 視覺化（Grafana）
+- 分散式追蹤（OpenTelemetry）
+
+---
+
 ## Phase 1: Design & Contracts
 
 ### Data Model
