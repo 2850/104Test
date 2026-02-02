@@ -120,6 +120,7 @@
 - [ ] T050 [US2] Implement StockService.GetStockQuoteAsync method with TWSE API integration in src/SecuritiesTradingApi/Services/StockService.cs
 - [ ] T051 [US2] Add GET /api/stocks/{stockCode}/quote endpoint to StocksController in src/SecuritiesTradingApi/Controllers/StocksController.cs
 - [ ] T052 [US2] Implement quote data caching with 5-second TTL in src/SecuritiesTradingApi/Services/StockService.cs
+- [ ] T052a [US2] Implement cache management (eviction policy, memory limits, cache miss handling, invalidation on errors) in src/SecuritiesTradingApi/Infrastructure/Cache/MemoryCacheService.cs
 - [ ] T053 [US2] Add error handling for external API failures (503 errors) in src/SecuritiesTradingApi/Infrastructure/Middleware/ErrorHandlingMiddleware.cs
 
 **Checkpoint**: User Stories 1 AND 2 完成 - 可獨立測試股票查詢和即時報價功能
@@ -205,6 +206,7 @@
 - [ ] T088 Run quickstart.md validation to ensure all setup steps work correctly
 - [ ] T089 Performance optimization: Add database indexes per data-model.md specifications
 - [ ] T090 Security review: Validate all input sanitization and error message exposure
+- [ ] T090a [P] Resilience testing: Create chaos tests for external API failures (circuit breaker, timeout scenarios, retry verification) using Polly or test mocks in tests/SecuritiesTradingApi.IntegrationTests/Resilience/
 
 ---
 
@@ -364,14 +366,14 @@ git commit -am "Create stock data seeding script"
 
 ## Task Summary
 
-- **Total Tasks**: 90
+- **Total Tasks**: 94
 - **Setup Tasks**: 7 (Phase 1)
 - **Foundational Tasks**: 16 (Phase 2)
-- **User Story 1 Tasks**: 17 (Phase 3)
-- **User Story 2 Tasks**: 13 (Phase 4)
+- **User Story 1 Tasks**: 18 (Phase 3)
+- **User Story 2 Tasks**: 15 (Phase 4)
 - **User Story 3 Tasks**: 21 (Phase 5)
 - **User Story 4 Tasks**: 6 (Phase 6)
-- **Polish Tasks**: 10 (Phase 7)
+- **Polish Tasks**: 11 (Phase 7)
 
 **Parallelizable Tasks**: 35 tasks marked with [P]
 
