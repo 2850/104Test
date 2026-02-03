@@ -5,7 +5,7 @@ namespace SecuritiesTradingApi.Infrastructure.ExternalApis;
 
 public class CachedTwseApiClient : ITwseApiClient
 {
-    private readonly ITwseApiClient _innerClient;
+    private readonly TwseApiClient _innerClient;
     private readonly IMemoryCacheService _cache;
     private readonly TimeSpan _cacheDuration;
     private const string CacheKeyPrefix = "StockQuote_";

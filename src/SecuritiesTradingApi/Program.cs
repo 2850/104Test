@@ -41,10 +41,10 @@ builder.Services.AddHttpClient<TwseApiClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["TwseApi:BaseUrl"]!);
     client.Timeout = TimeSpan.FromSeconds(builder.Configuration.GetValue<int>("TwseApi:TimeoutSeconds", 2));
-});
+})
+.AddTypedClient<TwseApiClient>();
 
 // Register API clients
-builder.Services.AddScoped<TwseApiClient>();
 builder.Services.AddScoped<ITwseApiClient, CachedTwseApiClient>();
 
 // Add FluentValidation

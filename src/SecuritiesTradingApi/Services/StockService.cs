@@ -52,20 +52,59 @@ public class StockService : IStockService
         };
     }
 
+    public async Task<IEnumerable<StockInfoDto>> SearchStocksAsync(string? symbol = null, string? keyword = null, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Searching stocks with symbol={Symbol}, keyword={Keyword}", symbol, keyword);
+
+        var query = _context.StockMaster.AsNoTracking().AsQueryable();
+
+        // 如果提供了symbol，優先使用symbol查詢
+        if (!string.IsNullOrWhiteSpace(symbol))
+        {
+            query = query.Where(s => s.StockCode == symbol);
+        }
+        // 否則使用keyword在StockName和StockNameShort中查詢
+        else if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            query = query.Where(s => s.StockName.Contains(keyword) || s.StockNameShort.Contains(keyword));
+        }
+
+        var stocks = await query
+            .OrderBy(s => s.StockCode)
+            .Take(100) // 限制返回數量
+            .ToListAsync(cancellationToken);
+
+        _logger.LogInformation("Found {Count} stocks", stocks.Count);
+
+        return stocks.Select(stock => new StockInfoDto
+        {
+            StockCode = stock.StockCode,
+            StockName = stock.StockName,
+            StockNameShort = stock.StockNameShort,
+            StockNameEn = stock.StockNameEn,
+            Exchange = stock.Exchange,
+            Industry = stock.Industry,
+            LotSize = stock.LotSize,
+            AllowOddLot = stock.AllowOddLot,
+            IsActive = stock.IsActive,
+            ListedDate = stock.ListedDate
+        });
+    }
+
     public async Task<StockQuoteDto?> GetStockQuoteAsync(string stockCode, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Querying stock quote for {StockCode}", stockCode);
 
-        // First check if stock exists in database
-        var stockExists = await _context.StockMaster
-            .AsNoTracking()
-            .AnyAsync(s => s.StockCode == stockCode, cancellationToken);
+        // // First check if stock exists in database
+        // var stockExists = await _context.StockMaster
+        //     .AsNoTracking()
+        //     .AnyAsync(s => s.StockCode == stockCode, cancellationToken);
 
-        if (!stockExists)
-        {
-            _logger.LogWarning("Stock {StockCode} not found in database", stockCode);
-            return null;
-        }
+        // if (!stockExists)
+        // {
+        //     _logger.LogWarning("Stock {StockCode} not found in database", stockCode);
+        //     return null;
+        // }
 
         var startTime = DateTime.UtcNow;
 

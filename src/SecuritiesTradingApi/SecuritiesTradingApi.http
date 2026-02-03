@@ -1,14 +1,30 @@
 @SecuritiesTradingApi_HostAddress = http://localhost:5205
 
-### 測試 1: 查詢所有股票
-GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks
+### 測試 1: 查詢股票 - 使用 symbol 參數精確查詢 (台積電)
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks?symbol=2330
 Accept: application/json
 
-### 測試 2: 查詢特定股票 (台積電)
+### 測試 2: 查詢股票 - 使用 keyword 參數搜尋股票名稱
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks?keyword=台積
+Accept: application/json
+
+### 測試 3: 查詢股票 - 使用 keyword 參數搜尋股票簡稱
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks?keyword=鴻海
+Accept: application/json
+
+### 測試 4: 查詢特定股票基本資料 (台積電)
 GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks/2330
 Accept: application/json
 
-### 測試 3: 建立買單
+### 測試 5: 查詢股票即時報價 (台積電)
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks/2330/Info
+Accept: application/json
+
+### 測試 5-2: 查詢股票即時報價 (台積電)
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks/2317/Info
+Accept: application/json
+
+### 測試 6: 建立買單
 POST {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
 Content-Type: application/json
 
@@ -20,12 +36,11 @@ Content-Type: application/json
   "userId": "testuser001"
 }
 
-### 測試 4: 查詢所有委託單
+### 測試 7: 查詢所有委託單
 GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
 Accept: application/json
 
-### 測試 5: 查詢特定使用者的委託單
+### 測試 8: 查詢特定使用者的委託單
 GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders?userId=testuser001
 Accept: application/json
 
-###

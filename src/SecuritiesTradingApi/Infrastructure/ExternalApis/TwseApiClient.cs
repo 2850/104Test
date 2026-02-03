@@ -19,7 +19,7 @@ public class TwseApiClient : ITwseApiClient
 
     public async Task<StockQuoteDto?> GetStockQuoteAsync(string stockCode, CancellationToken cancellationToken = default)
     {
-        var url = $"/stock/api/getStockInfo.jsp?ex_ch=tse_{stockCode}.tw";
+        var url = $"getStockInfo.jsp?ex_ch=tse_{stockCode}.tw";
         
         for (int attempt = 0; attempt <= _maxRetries; attempt++)
         {
@@ -72,23 +72,39 @@ public class TwseApiClient : ITwseApiClient
 
     private static StockQuoteDto MapToStockQuoteDto(string stockCode, TwseMsgArray data)
     {
-        var currentPrice = decimal.Parse(data.Z ?? "0");
-        var yesterdayPrice = decimal.Parse(data.Y ?? "0");
+        // 輔助方法：安全解析 decimal，處理 "-" 或空值
+        static decimal SafeParseDecimal(string? value, decimal defaultValue = 0m)
+        {
+            if (string.IsNullOrWhiteSpace(value) || value == "-")
+                return defaultValue;
+            return decimal.TryParse(value, out var result) ? result : defaultValue;
+        }
+
+        // 輔助方法：安全解析 long，處理 "-" 或空值
+        static long SafeParseLong(string? value, long defaultValue = 0L)
+        {
+            if (string.IsNullOrWhiteSpace(value) || value == "-")
+                return defaultValue;
+            return long.TryParse(value, out var result) ? result : defaultValue;
+        }
+
+        var currentPrice = SafeParseDecimal(data.Z);
+        var yesterdayPrice = SafeParseDecimal(data.Y);
         
         return new StockQuoteDto
         {
             StockCode = stockCode,
             CurrentPrice = currentPrice,
             YesterdayPrice = yesterdayPrice,
-            OpenPrice = decimal.Parse(data.O ?? "0"),
-            HighPrice = decimal.Parse(data.H ?? "0"),
-            LowPrice = decimal.Parse(data.L ?? "0"),
-            LimitUpPrice = decimal.Parse(data.U ?? "0"),
-            LimitDownPrice = decimal.Parse(data.W ?? "0"),
+            OpenPrice = SafeParseDecimal(data.O),
+            HighPrice = SafeParseDecimal(data.H),
+            LowPrice = SafeParseDecimal(data.L),
+            LimitUpPrice = SafeParseDecimal(data.U),
+            LimitDownPrice = SafeParseDecimal(data.W),
             ChangeAmount = currentPrice - yesterdayPrice,
             ChangePercent = yesterdayPrice > 0 ? (currentPrice - yesterdayPrice) / yesterdayPrice * 100 : 0,
-            TotalVolume = long.Parse(data.V ?? "0"),
-            TotalValue = string.IsNullOrEmpty(data.Tv) ? null : decimal.Parse(data.Tv),
+            TotalVolume = SafeParseLong(data.V),
+            TotalValue = string.IsNullOrEmpty(data.Tv) || data.Tv == "-" ? null : SafeParseDecimal(data.Tv),
             UpdateTime = DateTime.UtcNow
         };
     }
