@@ -12,6 +12,22 @@ Accept: application/json
 GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks?keyword=鴻海
 Accept: application/json
 
+### 測試 3-1: 查詢股票 - 分頁查詢（預設第1頁，每頁20筆）
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks?keyword=電
+Accept: application/json
+
+### 測試 3-2: 查詢股票 - 分頁查詢（第2頁，預設每頁20筆）
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks?keyword=電&page=2
+Accept: application/json
+
+### 測試 3-3: 查詢股票 - 分頁查詢（第1頁，每頁10筆）
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks?keyword=電&page=1&pageSize=10
+Accept: application/json
+
+### 測試 3-4: 查詢股票 - 分頁查詢（第3頁，每頁5筆）
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks?keyword=台&page=3&pageSize=5
+Accept: application/json
+
 ### 測試 4: 查詢特定股票基本資料 (台積電)
 GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks/2330
 Accept: application/json

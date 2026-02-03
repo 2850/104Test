@@ -52,9 +52,14 @@ public class StockService : IStockService
         };
     }
 
-    public async Task<IEnumerable<StockInfoDto>> SearchStocksAsync(string? symbol = null, string? keyword = null, CancellationToken cancellationToken = default)
+    public async Task<PagedResult<StockInfoDto>> SearchStocksAsync(string? symbol = null, string? keyword = null, int page = 1, int pageSize = 20, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Searching stocks with symbol={Symbol}, keyword={Keyword}", symbol, keyword);
+        _logger.LogInformation("Searching stocks with symbol={Symbol}, keyword={Keyword}, page={Page}, pageSize={PageSize}", symbol, keyword, page, pageSize);
+
+        // 確保頁碼和頁面大小有效
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 20;
+        if (pageSize > 100) pageSize = 100; // 限制最大頁面大小
 
         var query = _context.StockMaster.AsNoTracking().AsQueryable();
 
@@ -69,14 +74,19 @@ public class StockService : IStockService
             query = query.Where(s => s.StockName.Contains(keyword) || s.StockNameShort.Contains(keyword));
         }
 
+        // 獲取總記錄數
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        // 分頁查詢
         var stocks = await query
             .OrderBy(s => s.StockCode)
-            .Take(100) // 限制返回數量
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync(cancellationToken);
 
-        _logger.LogInformation("Found {Count} stocks", stocks.Count);
+        _logger.LogInformation("Found {Count} stocks (total: {TotalCount})", stocks.Count, totalCount);
 
-        return stocks.Select(stock => new StockInfoDto
+        var items = stocks.Select(stock => new StockInfoDto
         {
             StockCode = stock.StockCode,
             StockName = stock.StockName,
@@ -89,6 +99,8 @@ public class StockService : IStockService
             IsActive = stock.IsActive,
             ListedDate = stock.ListedDate
         });
+
+        return PagedResult<StockInfoDto>.Create(items, totalCount, page, pageSize);
     }
 
     public async Task<StockQuoteDto?> GetStockQuoteAsync(string stockCode, CancellationToken cancellationToken = default)

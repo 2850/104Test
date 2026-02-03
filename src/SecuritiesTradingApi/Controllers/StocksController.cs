@@ -24,15 +24,22 @@ public class StocksController : ControllerBase
     /// </summary>
     /// <param name="symbol">股票代號精確查詢（例如：2330）</param>
     /// <param name="keyword">關鍵字查詢，搜尋股票名稱和簡稱</param>
+    /// <param name="page">目前分頁（預設為1）</param>
+    /// <param name="pageSize">每頁筆數（預設為20，最大100）</param>
     /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>符合條件的股票列表</returns>
+    /// <returns>符合條件的股票列表（含分頁資訊）</returns>
     /// <response code="200">成功返回股票列表</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> SearchStocks([FromQuery] string? symbol, [FromQuery] string? keyword, CancellationToken cancellationToken)
+    public async Task<IActionResult> SearchStocks(
+        [FromQuery] string? symbol, 
+        [FromQuery] string? keyword, 
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
-        var stocks = await _stockService.SearchStocksAsync(symbol, keyword, cancellationToken);
-        return Ok(stocks);
+        var result = await _stockService.SearchStocksAsync(symbol, keyword, page, pageSize, cancellationToken);
+        return Ok(result);
     }
 
     /// <summary>
