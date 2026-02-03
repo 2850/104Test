@@ -7,6 +7,8 @@ public class CreateOrderResultDto
     public string StockName { get; set; } = null!;
     public byte OrderType { get; set; }
     public string OrderTypeName { get; set; } = null!;
+    public byte BuySell { get; set; }
+    public string BuySellName { get; set; } = null!;
     public decimal Price { get; set; }
     public int Quantity { get; set; }
     public byte OrderStatus { get; set; }

@@ -10,6 +10,8 @@ public class OrderDto
     public string? StockNameShort { get; set; }
     public byte OrderType { get; set; }
     public string? OrderTypeName { get; set; }
+    public byte BuySell { get; set; }
+    public string? BuySellName { get; set; }
     public decimal Price { get; set; }
     public int Quantity { get; set; }
     public int FilledQuantity { get; set; }
