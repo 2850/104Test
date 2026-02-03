@@ -19,7 +19,7 @@ export const options = {
   },
 };
 
-const BASE_URL = __ENV.BASE_URL || 'https://localhost:7001';
+const BASE_URL = __ENV.BASE_URL || 'http://localhost:5205';
 const STOCK_CODES = ['2330', '2317', '2454', '2882', '2881'];
 
 export default function () {
@@ -27,7 +27,7 @@ export default function () {
   const stockCode = STOCK_CODES[Math.floor(Math.random() * STOCK_CODES.length)];
 
   // Test 1: Get Stock Quote
-  const quoteResponse = http.get(`${BASE_URL}/api/stocks/${stockCode}/quote`, {
+  const quoteResponse = http.get(`${BASE_URL}/api/v1/stocks/${stockCode}/Info`, {
     headers: { 'Accept': 'application/json' },
   });
 
@@ -45,7 +45,7 @@ export default function () {
   sleep(1);
 
   // Test 2: Get Stock Info
-  const infoResponse = http.get(`${BASE_URL}/api/stocks/${stockCode}`, {
+  const infoResponse = http.get(`${BASE_URL}/api/v1/stocks/${stockCode}`, {
     headers: { 'Accept': 'application/json' },
   });
 

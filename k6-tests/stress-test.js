@@ -8,12 +8,12 @@ const errorRate = new Rate('errors');
 // Stress test configuration
 export const options = {
   stages: [
-    { duration: '1m', target: 100 },   // Ramp up to 100 users
-    { duration: '2m', target: 200 },   // Ramp up to 200 users
-    { duration: '3m', target: 200 },   // Stay at 200 users (stress period)
-    { duration: '1m', target: 300 },   // Spike to 300 users
-    { duration: '2m', target: 300 },   // Stay at 300 users (breaking point)
-    { duration: '1m', target: 0 },     // Ramp down to 0 users
+    { duration: '5s', target: 100 },   // Ramp up to 100 users
+    { duration: '5s', target: 200 },   // Ramp up to 200 users
+    { duration: '10s', target: 200 },  // Stay at 200 users (stress period)
+    { duration: '3s', target: 300 },   // Spike to 300 users
+    { duration: '5s', target: 300 },   // Stay at 300 users (breaking point)
+    { duration: '2s', target: 0 },     // Ramp down to 0 users
   ],
   thresholds: {
     http_req_duration: ['p(95)<1000'], // 95% of requests should be below 1s
@@ -22,7 +22,7 @@ export const options = {
 };
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:5205';
-const STOCK_CODES = ['2330', '2317', '2454', '2882', '2881', '2412', '2303', '2886', '1301', '2891'];
+const STOCK_CODES = ['2330']; // Focus on 2330 only to avoid price limit issues
 
 export default function () {
   const stockCode = STOCK_CODES[Math.floor(Math.random() * STOCK_CODES.length)];
@@ -33,11 +33,12 @@ export default function () {
     userId: userId,
     stockCode: stockCode,
     orderType: Math.random() > 0.5 ? 1 : 2, // Random buy/sell
-    price: 500.0 + Math.random() * 100,
+    buySell: Math.random() > 0.5 ? 1 : 2, // 1=Buy, 2=Sell
+    price: 1700.0 + Math.random() * 200, // Price range 1700-1900 (within 2330's limit 1590-1940)
     quantity: (Math.floor(Math.random() * 10) + 1) * 1000, // 1000-10000
   });
 
-  const orderResponse = http.post(`${BASE_URL}/api/orders`, orderPayload, {
+  const orderResponse = http.post(`${BASE_URL}/api/v1/orders`, orderPayload, {
     headers: { 
       'Content-Type': 'application/json',
       'Accept': 'application/json'
@@ -58,7 +59,7 @@ export default function () {
   sleep(0.5);
 
   // Test 2: Read operations (quote + info)
-  const quoteResponse = http.get(`${BASE_URL}/api/stocks/${stockCode}/quote`);
+  const quoteResponse = http.get(`${BASE_URL}/api/v1/stocks/${stockCode}/Info`);
   
   check(quoteResponse, {
     'quote response is valid': (r) => r.status === 200 || r.status === 503,

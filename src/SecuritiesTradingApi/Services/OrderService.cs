@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using SecuritiesTradingApi.Data;
+using SecuritiesTradingApi.Infrastructure.Cache;
 using SecuritiesTradingApi.Models.Dtos;
 using SecuritiesTradingApi.Models.Entities;
 
@@ -9,11 +10,16 @@ namespace SecuritiesTradingApi.Services;
 public class OrderService : IOrderService
 {
     private readonly TradingDbContext _context;
+    private readonly IMemoryCacheService _cacheService;
     private readonly ILogger<OrderService> _logger;
 
-    public OrderService(TradingDbContext context, ILogger<OrderService> logger)
+    public OrderService(
+        TradingDbContext context,
+        IMemoryCacheService cacheService,
+        ILogger<OrderService> logger)
     {
         _context = context;
+        _cacheService = cacheService;
         _logger = logger;
     }
 
@@ -22,15 +28,30 @@ public class OrderService : IOrderService
         _logger.LogInformation("Creating order for user {UserId}, stock {StockCode}, quantity {Quantity}", 
             orderDto.UserId, orderDto.StockCode, orderDto.Quantity);
 
-        // Validate stock exists
-        var stock = await _context.StockMaster
-            .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.StockCode == orderDto.StockCode, cancellationToken);
+        // Try to get stock from cache first
+        var cacheKey = $"stock:master:{orderDto.StockCode}";
+        var stock = _cacheService.Get<StockMaster>(cacheKey);
 
         if (stock == null)
         {
-            _logger.LogWarning("Order creation failed: Stock {StockCode} not found", orderDto.StockCode);
-            throw new KeyNotFoundException($"Stock {orderDto.StockCode} not found");
+            // Validate stock exists in database
+            stock = await _context.StockMaster
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.StockCode == orderDto.StockCode, cancellationToken);
+
+            if (stock == null)
+            {
+                _logger.LogWarning("Order creation failed: Stock {StockCode} not found", orderDto.StockCode);
+                throw new KeyNotFoundException($"Stock {orderDto.StockCode} not found");
+            }
+
+            // Cache for 5 minutes
+            _cacheService.Set(cacheKey, stock, TimeSpan.FromMinutes(5));
+            _logger.LogInformation("Cached stock master for {StockCode}", orderDto.StockCode);
+        }
+        else
+        {
+            _logger.LogInformation("Stock {StockCode} retrieved from cache", orderDto.StockCode);
         }
 
         // Validate price within limit up/down range
@@ -80,8 +101,7 @@ public class OrderService : IOrderService
         };
 
         _context.OrdersWrite.Add(orderWrite);
-        await _context.SaveChangesAsync(cancellationToken);
-
+        
         // Sync to Orders_Read (warm layer)
         var orderRead = new OrdersRead
         {
@@ -108,6 +128,7 @@ public class OrderService : IOrderService
         _logger.LogInformation("Successfully created order {OrderId} for user {UserId}, stock {StockCode}",
             orderId, orderDto.UserId, orderDto.StockCode);
 
+        // ✅ 合并为一次保存（改进性能）
         await _context.SaveChangesAsync(cancellationToken);
 
         return new CreateOrderResultDto

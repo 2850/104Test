@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SecuritiesTradingApi.Data;
 using SecuritiesTradingApi.Infrastructure.ExternalApis;
+using SecuritiesTradingApi.Infrastructure.Cache;
 using SecuritiesTradingApi.Models.Dtos;
 
 namespace SecuritiesTradingApi.Services;
@@ -9,21 +10,36 @@ public class StockService : IStockService
 {
     private readonly TradingDbContext _context;
     private readonly ITwseApiClient _twseApiClient;
+    private readonly IMemoryCacheService _cacheService;
     private readonly ILogger<StockService> _logger;
 
     public StockService(
         TradingDbContext context,
         ITwseApiClient twseApiClient,
+        IMemoryCacheService cacheService,
         ILogger<StockService> logger)
     {
         _context = context;
         _twseApiClient = twseApiClient;
+        _cacheService = cacheService;
         _logger = logger;
     }
 
     public async Task<StockInfoDto?> GetStockInfoAsync(string stockCode, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Querying stock info for {StockCode}", stockCode);
+
+        // Try to get from memory cache first
+        var cacheKey = $"stock:info:{stockCode}";
+        var cachedInfo = _cacheService.Get<StockInfoDto>(cacheKey);
+        
+        if (cachedInfo != null)
+        {
+            _logger.LogInformation("Stock info for {StockCode} retrieved from cache", stockCode);
+            return cachedInfo;
+        }
+
+        _logger.LogInformation("Cache miss for stock info {StockCode}, fetching from database", stockCode);
 
         var stock = await _context.StockMaster
             .AsNoTracking()
@@ -37,7 +53,7 @@ public class StockService : IStockService
 
         _logger.LogInformation("Successfully retrieved stock info for {StockCode}", stockCode);
 
-        return new StockInfoDto
+        var stockInfo = new StockInfoDto
         {
             StockCode = stock.StockCode,
             StockName = stock.StockName,
@@ -50,6 +66,12 @@ public class StockService : IStockService
             IsActive = stock.IsActive,
             ListedDate = stock.ListedDate
         };
+
+        // Cache for 5 minutes (stock info changes rarely)
+        _cacheService.Set(cacheKey, stockInfo, TimeSpan.FromMinutes(5));
+        _logger.LogInformation("Cached stock info for {StockCode} with 5 minutes expiration", stockCode);
+
+        return stockInfo;
     }
 
     public async Task<PagedResult<StockInfoDto>> SearchStocksAsync(string? symbol = null, string? keyword = null, int page = 1, int pageSize = 20, CancellationToken cancellationToken = default)
@@ -107,20 +129,21 @@ public class StockService : IStockService
     {
         _logger.LogInformation("Querying stock quote for {StockCode}", stockCode);
 
-        // // First check if stock exists in database
-        // var stockExists = await _context.StockMaster
-        //     .AsNoTracking()
-        //     .AnyAsync(s => s.StockCode == stockCode, cancellationToken);
+        // Try to get from memory cache first
+        var cacheKey = $"stock:quote:{stockCode}";
+        var cachedQuote = _cacheService.Get<StockQuoteDto>(cacheKey);
+        
+        if (cachedQuote != null)
+        {
+            _logger.LogInformation("Stock quote for {StockCode} retrieved from cache", stockCode);
+            return cachedQuote;
+        }
 
-        // if (!stockExists)
-        // {
-        //     _logger.LogWarning("Stock {StockCode} not found in database", stockCode);
-        //     return null;
-        // }
+        _logger.LogInformation("Cache miss for {StockCode}, fetching from TWSE API", stockCode);
 
         var startTime = DateTime.UtcNow;
 
-        // Try to get from cache/API
+        // Try to get from TWSE API
         var quote = await _twseApiClient.GetStockQuoteAsync(stockCode, cancellationToken);
 
         var responseTime = (DateTime.UtcNow - startTime).TotalMilliseconds;
@@ -128,6 +151,10 @@ public class StockService : IStockService
 
         if (quote != null)
         {
+            // Cache the quote for 5 seconds
+            _cacheService.Set(cacheKey, quote, TimeSpan.FromSeconds(5));
+            _logger.LogInformation("Cached stock quote for {StockCode} with 5 seconds expiration", stockCode);
+
             // Update snapshot in database
             var snapshot = await _context.StockQuotesSnapshot
                 .FirstOrDefaultAsync(s => s.StockCode == stockCode, cancellationToken);
