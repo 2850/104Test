@@ -1,6 +1,31 @@
 @SecuritiesTradingApi_HostAddress = http://localhost:5205
 
-GET {{SecuritiesTradingApi_HostAddress}}/weatherforecast/
+### 測試 1: 查詢所有股票
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks
+Accept: application/json
+
+### 測試 2: 查詢特定股票 (台積電)
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks/2330
+Accept: application/json
+
+### 測試 3: 建立買單
+POST {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
+Content-Type: application/json
+
+{
+  "stockCode": "2330",
+  "orderType": "Buy",
+  "price": 580.0,
+  "quantity": 1000,
+  "userId": "testuser001"
+}
+
+### 測試 4: 查詢所有委託單
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
+Accept: application/json
+
+### 測試 5: 查詢特定使用者的委託單
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders?userId=testuser001
 Accept: application/json
 
 ###

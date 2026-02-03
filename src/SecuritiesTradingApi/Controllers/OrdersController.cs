@@ -9,7 +9,7 @@ namespace SecuritiesTradingApi.Controllers;
 /// 委託單管理控制器
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public class OrdersController : ControllerBase
 {
     private readonly IOrderService _orderService;

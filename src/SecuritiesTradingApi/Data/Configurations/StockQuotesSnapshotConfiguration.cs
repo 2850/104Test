@@ -8,10 +8,9 @@ public class StockQuotesSnapshotConfiguration : IEntityTypeConfiguration<StockQu
 {
     public void Configure(EntityTypeBuilder<StockQuotesSnapshot> builder)
     {
-        builder.ToTable("StockQuotesSnapshot", t => t.IsMemoryOptimized());
+        builder.ToTable("StockQuotesSnapshot");
         
-        builder.HasKey(e => e.StockCode)
-            .IsClustered(false);
+        builder.HasKey(e => e.StockCode);
         
         builder.Property(e => e.StockCode)
             .HasMaxLength(10)

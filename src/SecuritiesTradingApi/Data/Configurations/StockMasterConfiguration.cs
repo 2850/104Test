@@ -14,25 +14,31 @@ public class StockMasterConfiguration : IEntityTypeConfiguration<StockMaster>
         
         builder.Property(e => e.StockCode)
             .HasMaxLength(10)
+            .UseCollation("Chinese_Taiwan_Stroke_CI_AS")
             .IsRequired();
         
         builder.Property(e => e.StockName)
             .HasMaxLength(100)
+            .UseCollation("Chinese_Taiwan_Stroke_CI_AS")
             .IsRequired();
         
         builder.Property(e => e.StockNameShort)
             .HasMaxLength(50)
+            .UseCollation("Chinese_Taiwan_Stroke_CI_AS")
             .IsRequired();
         
         builder.Property(e => e.StockNameEn)
-            .HasMaxLength(200);
+            .HasMaxLength(200)
+            .UseCollation("Chinese_Taiwan_Stroke_CI_AS");
         
         builder.Property(e => e.Exchange)
             .HasMaxLength(10)
+            .UseCollation("Chinese_Taiwan_Stroke_CI_AS")
             .IsRequired();
         
         builder.Property(e => e.Industry)
-            .HasMaxLength(50);
+            .HasMaxLength(50)
+            .UseCollation("Chinese_Taiwan_Stroke_CI_AS");
         
         builder.Property(e => e.LotSize)
             .HasDefaultValue(1000);

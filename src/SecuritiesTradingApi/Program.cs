@@ -25,7 +25,7 @@ builder.Services.AddControllers();
 // Add DbContext
 builder.Services.AddDbContext<TradingDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("TradingDb"),
+        builder.Configuration.GetConnectionString("DefaultConnection"),
         sqlServerOptions => sqlServerOptions
             .EnableRetryOnFailure(
                 maxRetryCount: 3,

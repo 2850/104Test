@@ -7,7 +7,7 @@ namespace SecuritiesTradingApi.Controllers;
 /// 股票資訊查詢控制器
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public class StocksController : ControllerBase
 {
     private readonly IStockService _stockService;

@@ -16,20 +16,25 @@ public class OrdersReadConfiguration : IEntityTypeConfiguration<OrdersRead>
             .ValueGeneratedNever();
         
         builder.Property(e => e.UserName)
-            .HasMaxLength(100);
+            .HasMaxLength(100)
+            .UseCollation("Chinese_Taiwan_Stroke_CI_AS");
         
         builder.Property(e => e.StockCode)
             .HasMaxLength(10)
+            .UseCollation("Chinese_Taiwan_Stroke_CI_AS")
             .IsRequired();
         
         builder.Property(e => e.StockName)
-            .HasMaxLength(100);
+            .HasMaxLength(100)
+            .UseCollation("Chinese_Taiwan_Stroke_CI_AS");
         
         builder.Property(e => e.StockNameShort)
-            .HasMaxLength(50);
+            .HasMaxLength(50)
+            .UseCollation("Chinese_Taiwan_Stroke_CI_AS");
         
         builder.Property(e => e.OrderTypeName)
-            .HasMaxLength(20);
+            .HasMaxLength(20)
+            .UseCollation("Chinese_Taiwan_Stroke_CI_AS");
         
         builder.Property(e => e.Price)
             .HasColumnType("decimal(18,2)");
@@ -38,7 +43,8 @@ public class OrdersReadConfiguration : IEntityTypeConfiguration<OrdersRead>
             .HasDefaultValue(0);
         
         builder.Property(e => e.OrderStatusName)
-            .HasMaxLength(20);
+            .HasMaxLength(20)
+            .UseCollation("Chinese_Taiwan_Stroke_CI_AS");
         
         builder.Property(e => e.CreatedAt)
             .HasDefaultValueSql("GETUTCDATE()");
