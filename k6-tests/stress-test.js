@@ -21,7 +21,7 @@ export const options = {
   },
 };
 
-const BASE_URL = __ENV.BASE_URL || 'https://localhost:7001';
+const BASE_URL = __ENV.BASE_URL || 'http://localhost:5205';
 const STOCK_CODES = ['2330', '2317', '2454', '2882', '2881', '2412', '2303', '2886', '1301', '2891'];
 
 export default function () {
