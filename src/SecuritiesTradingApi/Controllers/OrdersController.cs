@@ -27,6 +27,21 @@ public class OrdersController : ControllerBase
     }
 
     /// <summary>
+    /// 查詢委託單列表
+    /// </summary>
+    /// <param name="userId">使用者ID (選填，用於篩選特定使用者的委託單)</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>委託單列表</returns>
+    /// <response code="200">成功返回委託單列表</response>
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetOrders([FromQuery] long? userId, CancellationToken cancellationToken)
+    {
+        var orders = await _orderService.GetOrdersAsync(userId, cancellationToken);
+        return Ok(orders);
+    }
+
+    /// <summary>
     /// 建立股票委託單
     /// </summary>
     /// <param name="orderDto">委託單資料</param>

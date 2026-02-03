@@ -155,4 +155,39 @@ public class OrderService : IOrderService
             CreatedAt = order.CreatedAt
         };
     }
+
+    public async Task<List<OrderDto>> GetOrdersAsync(long? userId = null, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Getting orders{UserFilter}", userId.HasValue ? $" for user {userId}" : "");
+
+        var query = _context.OrdersRead.AsNoTracking();
+
+        if (userId.HasValue)
+        {
+            query = query.Where(o => o.UserId == userId.Value);
+        }
+
+        var orders = await query
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync(cancellationToken);
+
+        return orders.Select(order => new OrderDto
+        {
+            OrderId = order.OrderId,
+            UserId = order.UserId,
+            UserName = order.UserName,
+            StockCode = order.StockCode,
+            StockName = order.StockName,
+            StockNameShort = order.StockNameShort,
+            OrderType = order.OrderType,
+            OrderTypeName = order.OrderTypeName,
+            Price = order.Price,
+            Quantity = order.Quantity,
+            FilledQuantity = order.FilledQuantity,
+            OrderStatus = order.OrderStatus,
+            OrderStatusName = order.OrderStatusName,
+            TradeDate = order.TradeDate,
+            CreatedAt = order.CreatedAt
+        }).ToList();
+    }
 }
