@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SecuritiesTradingApi.Data;
+using SecuritiesTradingApi.Infrastructure.ExternalApis;
 using SecuritiesTradingApi.Infrastructure.Cache;
 using SecuritiesTradingApi.Models.Entities;
 using SecuritiesTradingApi.Services;
@@ -49,7 +50,7 @@ public class StockServiceTests
         context.StockMaster.Add(stock);
         await context.SaveChangesAsync();
 
-        var twseClientMock = new Mock<Infrastructure.ExternalApis.ITwseApiClient>();
+        var twseClientMock = new Mock<ITwseApiClient>();
         var service = new StockService(context, twseClientMock.Object, _cacheMock.Object, _loggerMock.Object);
 
         // Act
@@ -68,7 +69,7 @@ public class StockServiceTests
     {
         // Arrange
         using var context = CreateInMemoryContext();
-        var twseClientMock = new Mock<Infrastructure.ExternalApis.ITwseApiClient>();
+        var twseClientMock = new Mock<ITwseApiClient>();
         var service = new StockService(context, twseClientMock.Object, _cacheMock.Object, _loggerMock.Object);
 
         // Act

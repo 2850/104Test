@@ -1,5 +1,89 @@
 @SecuritiesTradingApi_HostAddress = http://localhost:5205
 
+### ========================================
+### JWT 認證測試
+### 
+### 使用步驟：
+### 1. 執行 JWT-1/JWT-2/JWT-3 任一登入測試
+### 2. 從回應中複製完整的 "accessToken" 值（一長串字串，包含兩個點號）
+### 3. 將下方測試中的 YOUR_ACCESS_TOKEN 替換為實際的 token
+### 4. 範例 token 格式：eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwi...
+### ========================================
+
+### JWT-1: 登入 - Admin 使用者
+# 執行後會回傳 accessToken 和 refreshToken
+POST {{SecuritiesTradingApi_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "Admin@123"
+}
+
+### JWT-2: 登入 - User1 使用者
+POST {{SecuritiesTradingApi_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "user1",
+  "password": "User1@123"
+}
+
+### JWT-3: 登入 - User2 使用者
+POST {{SecuritiesTradingApi_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "user2",
+  "password": "User2@123"
+}
+
+### JWT-4: 更新 Access Token (使用 Refresh Token)
+# 先執行登入測試取得 refreshToken，然後替換下面的 YOUR_REFRESH_TOKEN
+POST {{SecuritiesTradingApi_HostAddress}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "YOUR_REFRESH_TOKEN"
+}
+
+### JWT-5: 登出 (撤銷 Refresh Token)
+# 需要先登入取得 accessToken 和 refreshToken
+POST {{SecuritiesTradingApi_HostAddress}}/api/auth/logout
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+{
+  "refreshToken": "YOUR_REFRESH_TOKEN"
+}
+
+### JWT-6: 清理過期 Token (僅 Admin)
+# 需要 Admin 的 accessToken
+DELETE {{SecuritiesTradingApi_HostAddress}}/api/auth/cleanup-expired-tokens
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+
+### JWT-7: 測試登入失敗 - 錯誤密碼
+POST {{SecuritiesTradingApi_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "WrongPassword123!"
+}
+
+### JWT-8: 測試登入失敗 - 密碼複雜度不足
+POST {{SecuritiesTradingApi_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "simple"
+}
+
+### ========================================
+### 股票查詢測試（不需授權）
+### ========================================
+
 ### 測試 1: 查詢股票 - 使用 symbol 參數精確查詢 (台積電)
 GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks?symbol=2330
 Accept: application/json
@@ -40,93 +124,146 @@ Accept: application/json
 GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks/2317/Info
 Accept: application/json
 
-### 測試 6: 建立限價買單 (台積電)
+### ========================================
+### 訂單管理測試（需要授權）
+### 使用方式：
+### 1. 先執行 JWT-1 或 JWT-2 登入取得 accessToken
+### 2. 複製 accessToken 並替換下面的 YOUR_ACCESS_TOKEN
+### 3. Admin 可以查看所有訂單，User 只能查看自己的訂單
+### ========================================
+
+### 測試 6: 建立限價買單 (台積電) - 需要授權
+# 需要先登入取得 accessToken
 POST {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
 Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN
 
 {
-  "userId": 1,
   "stockCode": "2330",
   "orderType": 1,
   "buySell": 1,
-  "price": 1785.0,
+  "price": 585.0,
   "quantity": 1000
 }
 
-### 測試 6-2: 建立限價賣單 (台積電)
+### 測試 6-2: 建立限價賣單 (台積電) - User1
+# 使用 user1 的 accessToken
 POST {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
 Content-Type: application/json
+Authorization: Bearer YOUR_USER1_ACCESS_TOKEN
 
 {
-  "userId": 2,
   "stockCode": "2330",
   "orderType": 1,
   "buySell": 2,
-  "price": 1800.0,
+  "price": 590.0,
   "quantity": 2000
 }
 
-### 測試 6-3: 建立市價買單 (鴻海)
+### 測試 6-3: 建立市價買單 (鴻海) - User2
+# 使用 user2 的 accessToken
 POST {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
 Content-Type: application/json
+Authorization: Bearer YOUR_USER2_ACCESS_TOKEN
 
 {
-  "userId": 3,
   "stockCode": "2317",
   "orderType": 2,
   "buySell": 1,
-  "price": 210.0,
+  "price": 125.0,
   "quantity": 1000
 }
 
 ### 測試 6-4: 測試驗證錯誤 - 無效的 orderType
 POST {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
 Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN
 
 {
-  "userId": 1,
   "stockCode": "2330",
   "orderType": 3,
   "buySell": 1,
-  "price": 1785.0,
+  "price": 585.0,
   "quantity": 1000
 }
 
 ### 測試 6-5: 測試驗證錯誤 - 無效的 buySell
 POST {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
 Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN
 
 {
-  "userId": 1,
   "stockCode": "2330",
   "orderType": 1,
   "buySell": 3,
-  "price": 1785.0,
+  "price": 585.0,
   "quantity": 1000
 }
 
 ### 測試 6-6: 測試驗證錯誤 - 數量不是1000的倍數
 POST {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
 Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN
 
 {
-  "userId": 1,
   "stockCode": "2330",
   "orderType": 1,
   "buySell": 1,
-  "price": 1785.0,
+  "price": 585.0,
   "quantity": 500
 }
 
-### 測試 7: 查詢特定委託單詳細資料
-GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders/1000000010
+### 測試 6-7: 測試未授權錯誤 - 沒有提供 Token
+POST {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
+Content-Type: application/json
+
+{
+  "stockCode": "2330",
+  "orderType": 1,
+  "buySell": 1,
+  "price": 585.0,
+  "quantity": 1000
+}
+
+### 測試 7: 查詢特定委託單詳細資料 - Admin 查看任意訂單
+# Admin 可以查看任何人的訂單
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders/1
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
 Accept: application/json
 
-### 測試 8: 查詢特定使用者的委託單列表
-GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders?userId=1
+### 測試 7-2: 查詢特定委託單詳細資料 - User 查看自己的訂單
+# User 只能查看自己的訂單
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders/1
+Authorization: Bearer YOUR_USER1_ACCESS_TOKEN
 Accept: application/json
 
-### 測試 9: 查詢所有委託單列表
+### 測試 7-3: 查詢特定委託單詳細資料 - User 查看他人訂單 (應返回 403)
+# User 嘗試查看不屬於自己的訂單，應該返回 403 Forbidden
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders/1
+Authorization: Bearer YOUR_USER2_ACCESS_TOKEN
+Accept: application/json
+
+### 測試 8: 查詢特定使用者的委託單列表 - Admin 查詢 user1
+# Admin 可以查詢任何使用者的訂單
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders?userId=2
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+Accept: application/json
+
+### 測試 8-2: User 查詢自己的委託單列表
+# User 查詢訂單時，系統會自動使用其 UserId，忽略查詢參數
 GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
+Authorization: Bearer YOUR_USER1_ACCESS_TOKEN
+Accept: application/json
+
+### 測試 8-3: User 嘗試查詢他人訂單 (參數會被忽略)
+# User 傳入其他 userId 參數也會被系統忽略，只返回自己的訂單
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders?userId=3
+Authorization: Bearer YOUR_USER1_ACCESS_TOKEN
+Accept: application/json
+
+### 測試 9: 查詢所有委託單列表 - Admin 權限
+# 只有 Admin 可以查詢所有訂單
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
 Accept: application/json
 

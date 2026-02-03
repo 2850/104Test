@@ -1,7 +1,10 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using SecuritiesTradingApi.Models.Dtos;
 using SecuritiesTradingApi.Services;
+using SecuritiesTradingApi.Models;
+using System.Security.Claims;
 
 namespace SecuritiesTradingApi.Controllers;
 
@@ -10,6 +13,7 @@ namespace SecuritiesTradingApi.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/[controller]")]
+[Authorize]
 public class OrdersController : ControllerBase
 {
     private readonly IOrderService _orderService;
@@ -29,7 +33,7 @@ public class OrdersController : ControllerBase
     /// <summary>
     /// 查詢委託單列表
     /// </summary>
-    /// <param name="userId">使用者ID (選填，用於篩選特定使用者的委託單)</param>
+    /// <param name="userId">使用者ID (選填，管理員可查詢所有使用者，一般使用者只能查詢自己的委託單)</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>委託單列表</returns>
     /// <response code="200">成功返回委託單列表</response>
@@ -37,6 +41,23 @@ public class OrdersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetOrders([FromQuery] long? userId, CancellationToken cancellationToken)
     {
+        // 取得目前登入使用者的資訊
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+        var roleClaim = User.FindFirst(ClaimTypes.Role);
+
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int authenticatedUserId))
+        {
+            return Unauthorized(new ErrorResponseDto(ErrorCodes.TOKEN_INVALID, "無效的使用者 Token"));
+        }
+
+        var role = roleClaim?.Value;
+
+        // 一般使用者只能查詢自己的委託單
+        if (role != "Admin")
+        {
+            userId = authenticatedUserId;
+        }
+
         var orders = await _orderService.GetOrdersAsync(userId, cancellationToken);
         return Ok(orders);
     }
@@ -56,6 +77,16 @@ public class OrdersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto orderDto, CancellationToken cancellationToken)
     {
+        // 取得目前登入使用者的 ID
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int authenticatedUserId))
+        {
+            return Unauthorized(new ErrorResponseDto(ErrorCodes.TOKEN_INVALID, "無效的使用者 Token"));
+        }
+
+        // 強制使用 authenticated user 的 UserId
+        orderDto.UserId = authenticatedUserId;
+
         var validationResult = await _validator.ValidateAsync(orderDto, cancellationToken);
         
         if (!validationResult.IsValid)
@@ -104,6 +135,7 @@ public class OrdersController : ControllerBase
     [HttpGet("{orderId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetOrder(long orderId, CancellationToken cancellationToken)
     {
         var order = await _orderService.GetOrderByIdAsync(orderId, cancellationToken);
@@ -116,6 +148,21 @@ public class OrdersController : ControllerBase
                 Title = "Not Found",
                 Detail = $"Order {orderId} not found"
             });
+        }
+
+        // 檢查權限：一般使用者只能查看自己的委託單
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+        var roleClaim = User.FindFirst(ClaimTypes.Role);
+
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int authenticatedUserId))
+        {
+            return Unauthorized(new ErrorResponseDto(ErrorCodes.TOKEN_INVALID, "無效的使用者 Token"));
+        }
+
+        // 一般使用者只能查看自己的委託單
+        if (roleClaim?.Value != "Admin" && order.UserId != authenticatedUserId)
+        {
+            return StatusCode(403, new ErrorResponseDto(ErrorCodes.FORBIDDEN, "您沒有權限查看此委託單"));
         }
         
         return Ok(order);

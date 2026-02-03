@@ -13,6 +13,8 @@ public class TradingDbContext : DbContext
     public DbSet<StockQuotesSnapshot> StockQuotesSnapshot { get; set; } = null!;
     public DbSet<OrdersWrite> OrdersWrite { get; set; } = null!;
     public DbSet<OrdersRead> OrdersRead { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
