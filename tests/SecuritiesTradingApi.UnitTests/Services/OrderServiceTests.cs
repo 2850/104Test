@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SecuritiesTradingApi.Data;
+using SecuritiesTradingApi.Infrastructure.Cache;
 using SecuritiesTradingApi.Models.Entities;
 using SecuritiesTradingApi.Services;
 
@@ -11,10 +12,12 @@ namespace SecuritiesTradingApi.UnitTests.Services;
 public class OrderServiceTests
 {
     private readonly Mock<ILogger<OrderService>> _loggerMock;
+    private readonly Mock<IMemoryCacheService> _cacheMock;
 
     public OrderServiceTests()
     {
         _loggerMock = new Mock<ILogger<OrderService>>();
+        _cacheMock = new Mock<IMemoryCacheService>();
     }
 
     private TradingDbContext CreateInMemoryContext()
@@ -52,7 +55,7 @@ public class OrderServiceTests
         context.OrdersRead.Add(order);
         await context.SaveChangesAsync();
 
-        var service = new OrderService(context, _loggerMock.Object);
+        var service = new OrderService(context, _cacheMock.Object, _loggerMock.Object);
 
         // Act
         var result = await service.GetOrderByIdAsync(1);
@@ -72,7 +75,7 @@ public class OrderServiceTests
     {
         // Arrange
         using var context = CreateInMemoryContext();
-        var service = new OrderService(context, _loggerMock.Object);
+        var service = new OrderService(context, _cacheMock.Object, _loggerMock.Object);
 
         // Act
         var result = await service.GetOrderByIdAsync(999);

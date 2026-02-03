@@ -19,17 +19,20 @@ public class OrdersControllerTests : IClassFixture<WebApplicationFactory<Program
     public async Task CreateOrder_ValidOrder_ReturnsCreated()
     {
         // Arrange
+        // Note: Price should be within the stock's limit range
+        // Based on current market, 2330 limit range is around 1590-1940
         var createOrder = new CreateOrderDto
         {
             UserId = 1,
             StockCode = "2330",
             OrderType = 1,
-            Price = 580.00m,
+            BuySell = 1,
+            Price = 1700.00m, // Use a realistic price within limit range
             Quantity = 1000
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/orders", createOrder);
+        var response = await _client.PostAsJsonAsync("/api/v1/orders", createOrder);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -48,12 +51,13 @@ public class OrdersControllerTests : IClassFixture<WebApplicationFactory<Program
             UserId = 1,
             StockCode = "2330",
             OrderType = 1,
+            BuySell = 1,
             Price = 580.00m,
             Quantity = 500
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/orders", createOrder);
+        var response = await _client.PostAsJsonAsync("/api/v1/orders", createOrder);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -68,12 +72,13 @@ public class OrdersControllerTests : IClassFixture<WebApplicationFactory<Program
             UserId = 1,
             StockCode = "9999",
             OrderType = 1,
+            BuySell = 1,
             Price = 100.00m,
             Quantity = 1000
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/orders", createOrder);
+        var response = await _client.PostAsJsonAsync("/api/v1/orders", createOrder);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -83,7 +88,7 @@ public class OrdersControllerTests : IClassFixture<WebApplicationFactory<Program
     public async Task GetOrder_NonExistingOrder_ReturnsNotFound()
     {
         // Act
-        var response = await _client.GetAsync("/api/orders/999999");
+        var response = await _client.GetAsync("/api/v1/orders/999999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

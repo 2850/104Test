@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SecuritiesTradingApi.Data;
+using SecuritiesTradingApi.Infrastructure.Cache;
 using SecuritiesTradingApi.Models.Entities;
 using SecuritiesTradingApi.Services;
 
@@ -11,10 +12,12 @@ namespace SecuritiesTradingApi.UnitTests.Services;
 public class StockServiceTests
 {
     private readonly Mock<ILogger<StockService>> _loggerMock;
+    private readonly Mock<IMemoryCacheService> _cacheMock;
 
     public StockServiceTests()
     {
         _loggerMock = new Mock<ILogger<StockService>>();
+        _cacheMock = new Mock<IMemoryCacheService>();
     }
 
     private TradingDbContext CreateInMemoryContext()
@@ -47,7 +50,7 @@ public class StockServiceTests
         await context.SaveChangesAsync();
 
         var twseClientMock = new Mock<Infrastructure.ExternalApis.ITwseApiClient>();
-        var service = new StockService(context, twseClientMock.Object, _loggerMock.Object);
+        var service = new StockService(context, twseClientMock.Object, _cacheMock.Object, _loggerMock.Object);
 
         // Act
         var result = await service.GetStockInfoAsync("2330");
@@ -66,7 +69,7 @@ public class StockServiceTests
         // Arrange
         using var context = CreateInMemoryContext();
         var twseClientMock = new Mock<Infrastructure.ExternalApis.ITwseApiClient>();
-        var service = new StockService(context, twseClientMock.Object, _loggerMock.Object);
+        var service = new StockService(context, twseClientMock.Object, _cacheMock.Object, _loggerMock.Object);
 
         // Act
         var result = await service.GetStockInfoAsync("9999");

@@ -23,6 +23,7 @@ public class CreateOrderValidatorTests
             UserId = 1,
             StockCode = "2330",
             OrderType = 1,
+            BuySell = 1,
             Price = 580.00m,
             Quantity = 1000
         };
@@ -45,6 +46,7 @@ public class CreateOrderValidatorTests
             UserId = userId,
             StockCode = "2330",
             OrderType = 1,
+            BuySell = 1,
             Price = 580.00m,
             Quantity = 1000
         };
@@ -68,6 +70,7 @@ public class CreateOrderValidatorTests
             UserId = 1,
             StockCode = stockCode!,
             OrderType = 1,
+            BuySell = 1,
             Price = 580.00m,
             Quantity = 1000
         };
@@ -91,6 +94,7 @@ public class CreateOrderValidatorTests
             UserId = 1,
             StockCode = "2330",
             OrderType = orderType,
+            BuySell = 1,
             Price = 580.00m,
             Quantity = 1000
         };
@@ -114,6 +118,7 @@ public class CreateOrderValidatorTests
             UserId = 1,
             StockCode = "2330",
             OrderType = 1,
+            BuySell = 1,
             Price = price,
             Quantity = 1000
         };
@@ -138,6 +143,7 @@ public class CreateOrderValidatorTests
             UserId = 1,
             StockCode = "2330",
             OrderType = 1,
+            BuySell = 1,
             Price = 580.00m,
             Quantity = quantity
         };
@@ -161,6 +167,7 @@ public class CreateOrderValidatorTests
             UserId = 1,
             StockCode = "2330",
             OrderType = 1,
+            BuySell = 1,
             Price = 580.00m,
             Quantity = quantity
         };

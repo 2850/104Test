@@ -19,7 +19,7 @@ public class StocksControllerTests : IClassFixture<WebApplicationFactory<Program
     public async Task GetStockInfo_ExistingStock_ReturnsOk()
     {
         // Act
-        var response = await _client.GetAsync("/api/stocks/2330");
+        var response = await _client.GetAsync("/api/v1/stocks/2330");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -32,7 +32,7 @@ public class StocksControllerTests : IClassFixture<WebApplicationFactory<Program
     public async Task GetStockInfo_NonExistingStock_ReturnsNotFound()
     {
         // Act
-        var response = await _client.GetAsync("/api/stocks/9999");
+        var response = await _client.GetAsync("/api/v1/stocks/9999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -42,7 +42,7 @@ public class StocksControllerTests : IClassFixture<WebApplicationFactory<Program
     public async Task GetStockQuote_ExistingStock_ReturnsOkOrServiceUnavailable()
     {
         // Act
-        var response = await _client.GetAsync("/api/stocks/2330/quote");
+        var response = await _client.GetAsync("/api/v1/stocks/2330/Info");
 
         // Assert - Either success or 503 (TWSE API might be unavailable)
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.ServiceUnavailable);
