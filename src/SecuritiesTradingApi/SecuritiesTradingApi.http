@@ -20,20 +20,86 @@ Accept: application/json
 GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks/2330/Info
 Accept: application/json
 
-### 測試 5-2: 查詢股票即時報價 (台積電)
+### 測試 5-2: 查詢股票即時報價 (鴻海)
 GET {{SecuritiesTradingApi_HostAddress}}/api/v1/stocks/2317/Info
 Accept: application/json
 
-### 測試 6: 建立買單
+### 測試 6: 建立限價買單 (台積電)
 POST {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
 Content-Type: application/json
 
 {
+  "userId": 1,
   "stockCode": "2330",
-  "orderType": "Buy",
-  "price": 580.0,
-  "quantity": 1000,
-  "userId": "testuser001"
+  "orderType": 1,
+  "buySell": 1,
+  "price": 1785.0,
+  "quantity": 1000
+}
+
+### 測試 6-2: 建立限價賣單 (台積電)
+POST {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
+Content-Type: application/json
+
+{
+  "userId": 2,
+  "stockCode": "2330",
+  "orderType": 1,
+  "buySell": 2,
+  "price": 1800.0,
+  "quantity": 2000
+}
+
+### 測試 6-3: 建立市價買單 (鴻海)
+POST {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
+Content-Type: application/json
+
+{
+  "userId": 3,
+  "stockCode": "2317",
+  "orderType": 2,
+  "buySell": 1,
+  "price": 210.0,
+  "quantity": 1000
+}
+
+### 測試 6-4: 測試驗證錯誤 - 無效的 orderType
+POST {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "stockCode": "2330",
+  "orderType": 3,
+  "buySell": 1,
+  "price": 1785.0,
+  "quantity": 1000
+}
+
+### 測試 6-5: 測試驗證錯誤 - 無效的 buySell
+POST {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "stockCode": "2330",
+  "orderType": 1,
+  "buySell": 3,
+  "price": 1785.0,
+  "quantity": 1000
+}
+
+### 測試 6-6: 測試驗證錯誤 - 數量不是1000的倍數
+POST {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "stockCode": "2330",
+  "orderType": 1,
+  "buySell": 1,
+  "price": 1785.0,
+  "quantity": 500
 }
 
 ### 測試 7: 查詢所有委託單
@@ -41,6 +107,6 @@ GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders
 Accept: application/json
 
 ### 測試 8: 查詢特定使用者的委託單
-GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders?userId=testuser001
+GET {{SecuritiesTradingApi_HostAddress}}/api/v1/orders?userId=1
 Accept: application/json
 

@@ -19,7 +19,11 @@ public class CreateOrderValidator : AbstractValidator<CreateOrderDto>
 
         RuleFor(x => x.OrderType)
             .Must(x => x == 1 || x == 2)
-            .WithMessage("OrderType must be 1 (Buy) or 2 (Sell)");
+            .WithMessage("OrderType must be 1 (Limit) or 2 (Market)");
+
+        RuleFor(x => x.BuySell)
+            .Must(x => x == 1 || x == 2)
+            .WithMessage("BuySell must be 1 (Buy) or 2 (Sell)");
 
         RuleFor(x => x.Price)
             .GreaterThan(0)

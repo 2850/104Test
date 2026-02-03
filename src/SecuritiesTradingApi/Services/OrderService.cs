@@ -70,6 +70,7 @@ public class OrderService : IOrderService
             UserId = orderDto.UserId,
             StockCode = orderDto.StockCode,
             OrderType = orderDto.OrderType,
+            BuySell = orderDto.BuySell,
             Price = orderDto.Price,
             Quantity = orderDto.Quantity,
             OrderStatus = 1, // Pending
@@ -90,7 +91,8 @@ public class OrderService : IOrderService
             StockName = stock.StockName,
             StockNameShort = stock.StockNameShort,
             OrderType = orderDto.OrderType,
-            OrderTypeName = orderDto.OrderType == 1 ? "Buy" : "Sell",
+            BuySell = orderDto.BuySell,
+            OrderTypeName = orderDto.BuySell == 1 ? "Buy" : "Sell",
             Price = orderDto.Price,
             Quantity = orderDto.Quantity,
             FilledQuantity = 0,
